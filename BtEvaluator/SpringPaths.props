@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <SPRING_SOURCE_DIR>E:\Matfyz\Projekt\spring_source\spring\</SPRING_SOURCE_DIR>
+    <SPRINGDATA_DIR>E:\Matfyz\Projekt\nota_dev_pack\000\SpringData\</SPRINGDATA_DIR>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="SPRING_SOURCE_DIR">
+      <Value>$(SPRING_SOURCE_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="SPRINGDATA_DIR">
+      <Value>$(SPRINGDATA_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
