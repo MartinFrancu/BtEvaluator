@@ -11,6 +11,7 @@
 #include "Unit.h"
 #include "UnitDef.h"
 #include "Game.h"
+#include "Map.h"
 #include "Lua.h"
 #include "Log.h"
 
@@ -68,7 +69,7 @@ void BtEvaluator::loadTree() {
     {
       auto firstEcho = new EchoCommand(callback, "true branch");
       branchTrue->add(firstEcho);
-      auto waiting = new WaitNode(callback, 20);
+      auto waiting = new WaitNode(callback, 6);
       branchTrue->add(waiting);
       auto lastEcho = new EchoCommand(callback, "true branch ends");
       branchTrue->add(lastEcho);
@@ -77,7 +78,7 @@ void BtEvaluator::loadTree() {
     {
       auto firstEcho = new EchoCommand(callback, "false branch");
       branchFalse->add(firstEcho);
-      auto waiting = new WaitNode(callback, 10);
+      auto waiting = new WaitNode(callback, 3);
       branchFalse->add(waiting);
       auto lastEcho = new EchoCommand(callback, "false branch ends");
       branchFalse->add(lastEcho);
@@ -108,7 +109,9 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 	case EVENT_UPDATE:
 	{ // every frame UPDATE_EVENT is called
 		//game->SendTextMessage("Update Event ", 0);
-    behaviourTree.tick(context);
+		const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
+		if(updateData->frame % 30 == 0) // tick the tree only once a "game second" == 30 ticks
+		    behaviourTree.tick(context);
 		break;
 	}
 	case EVENT_LUA_MESSAGE:
