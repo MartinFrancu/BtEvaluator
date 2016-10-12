@@ -42,21 +42,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeIncludeSearchPath>$(SPRING_SOURCE_DIR)rts\;$(SPRING_SOURCE_DIR)build\AI\Wrappers\Cpp\src-generated;</NMakeIncludeSearchPath>
-    <NMakeBuildCommandLine>cd $(SPRING_SOURCE_DIR) &amp;&amp; cmake ./build
+    <NMakeBuildCommandLine>PowerShell -executionpolicy bypass -File CMakeChecker.ps1
+cd $(SPRING_SOURCE_DIR)build &amp;&amp; mingw32-make -j4 BtEvaluator &amp;&amp; xcopy /y $(SPRING_SOURCE_DIR)build\AI\Skirmish\BtEvaluator\SkirmishAI.dll $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\ &amp;&amp; xcopy /y $(SolutionDir)data\*  $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\ &amp;&amp; xcopy /y $(SolutionDir)BtEvaluatorLoader.lua $(SPRINGDATA_DIR)LuaUI\Widgets</NMakeBuildCommandLine>
+    <IncludePath>../../../Wrappers/Cpp/src;$(IncludePath)</IncludePath>
+    <NMakeReBuildCommandLine>cd .. &amp;&amp; copy /b CMakeLists.txt +,,
 cd $(SPRING_SOURCE_DIR)build &amp;&amp; mingw32-make -j4 BtEvaluator 
 xcopy /y $(SPRING_SOURCE_DIR)build\AI\Skirmish\BtEvaluator\SkirmishAI.dll $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\
 xcopy /y $(SolutionDir)data\*  $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\
-xcopy /y $(SolutionDir)BtEvaluatorLoader.lua $(SPRINGDATA_DIR)LuaUI\Widgets</NMakeBuildCommandLine>
-    <IncludePath>../../../Wrappers/Cpp/src;$(IncludePath)</IncludePath>
+xcopy /y $(SolutionDir)BtEvaluatorLoader.lua $(SPRINGDATA_DIR)LuaUI\Widgets</NMakeReBuildCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeIncludeSearchPath>$(SPRING_SOURCE_DIR)rts\;$(SPRING_SOURCE_DIR)build\AI\Wrappers\Cpp\src-generated;</NMakeIncludeSearchPath>
-    <NMakeBuildCommandLine>cd $(SPRING_SOURCE_DIR) &amp;&amp; cmake ./build
+    <NMakeBuildCommandLine>PowerShell -executionpolicy bypass -File CMakeChecker.ps1
+cd $(SPRING_SOURCE_DIR)build &amp;&amp; mingw32-make -j4 BtEvaluator &amp;&amp; xcopy /y $(SPRING_SOURCE_DIR)build\AI\Skirmish\BtEvaluator\SkirmishAI.dll $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\ &amp;&amp; xcopy /y $(SolutionDir)data\*  $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\ &amp;&amp; xcopy /y $(SolutionDir)BtEvaluatorLoader.lua $(SPRINGDATA_DIR)LuaUI\Widgets</NMakeBuildCommandLine>
+    <IncludePath>../../../Wrappers/Cpp/src;$(IncludePath)</IncludePath>
+    <NMakeReBuildCommandLine>cd .. &amp;&amp; copy /b CMakeLists.txt +,,
 cd $(SPRING_SOURCE_DIR)build &amp;&amp; mingw32-make -j4 BtEvaluator 
 xcopy /y $(SPRING_SOURCE_DIR)build\AI\Skirmish\BtEvaluator\SkirmishAI.dll $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\
 xcopy /y $(SolutionDir)data\*  $(SPRINGDATA_DIR)AI\Skirmish\BtEvaluator\0.0001\
-xcopy /y $(SolutionDir)BtEvaluatorLoader.lua $(SPRINGDATA_DIR)LuaUI\Widgets</NMakeBuildCommandLine>
-    <IncludePath>../../../Wrappers/Cpp/src;$(IncludePath)</IncludePath>
+xcopy /y $(SolutionDir)BtEvaluatorLoader.lua $(SPRINGDATA_DIR)LuaUI\Widgets</NMakeReBuildCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
