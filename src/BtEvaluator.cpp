@@ -26,6 +26,9 @@
 #include <string>
 #include <sstream>
 
+//#include "json.hpp"
+//using json = nlohmann::json;
+
 // Every event has its own event struct defined on AISEvents.h, which is passed as const void* data to HandleEvenet. 
 /*
 enum EventTopic {
@@ -105,7 +108,22 @@ SpringCommand* BtEvaluator::resolveCommand(const char* message) const {
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {
-	switch (event) {
+  std::string initMsg(/*json({
+    { "test", 1 },
+    { "pole",{
+      1,
+      2,
+    3
+    } },
+    { "struktura",{
+      { "polozka", "test" }
+    } }
+  })*/"AI properly initialized");
+
+  switch (event) {
+  case EVENT_INIT:
+    game->SendTextMessage(initMsg.c_str(), 0);
+    break;
 	case EVENT_UPDATE:
 	{ // every frame UPDATE_EVENT is called
 		//game->SendTextMessage("Update Event ", 0);
