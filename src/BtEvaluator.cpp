@@ -26,8 +26,8 @@
 #include <string>
 #include <sstream>
 
-//#include "json.hpp"
-//using json = nlohmann::json;
+#include "json.hpp"
+using json = nlohmann::json;
 
 // Every event has its own event struct defined on AISEvents.h, which is passed as const void* data to HandleEvenet. 
 /*
@@ -108,22 +108,19 @@ SpringCommand* BtEvaluator::resolveCommand(const char* message) const {
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {
-  std::string initMsg(/*json({
+  std::string initMsg(json({
     { "test", 1 },
-    { "pole",{
+    { "pole", {
       1,
       2,
-    3
+	  3
     } },
-    { "struktura",{
+    { "struktura", json({
       { "polozka", "test" }
-    } }
-  })*/"AI properly initialized");
+    }) }
+  }).dump());
 
   switch (event) {
-  case EVENT_INIT:
-    game->SendTextMessage(initMsg.c_str(), 0);
-    break;
 	case EVENT_UPDATE:
 	{ // every frame UPDATE_EVENT is called
 		//game->SendTextMessage("Update Event ", 0);
@@ -134,6 +131,7 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 	}
 	case EVENT_LUA_MESSAGE:
 	{
+		game->SendTextMessage(initMsg.c_str(), 0);
 		game->SendTextMessage("Lua Message Event. ", 0);
 		const char* message = static_cast<const SLuaMessageEvent*>(data)->inData;
 		resolveCommand(message)->execute();
