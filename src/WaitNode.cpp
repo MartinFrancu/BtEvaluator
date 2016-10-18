@@ -3,7 +3,7 @@
 
 using namespace BT;
 
-EvaluationResult WaitNode::execute() {
+EvaluationResult WaitNode::execute(const std::vector<springai::Unit*> units) {
   if (++counter_ > tickCount_)
   {
     reset();

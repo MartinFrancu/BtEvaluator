@@ -12,7 +12,7 @@ namespace BT {
     ~FlipSensor() {}
 
     virtual std::string name() { return "FlipSensor"; }
-    virtual EvaluationResult execute() override;
+    virtual EvaluationResult execute(const std::vector<springai::Unit*> units) override;
   };
 }
 

@@ -12,7 +12,7 @@ namespace BT {
 		~EchoCommand() {}
 
     virtual std::string name() { return "EchoCommand"; }
-    virtual EvaluationResult execute() override;
+    virtual EvaluationResult execute(const std::vector<springai::Unit*> units) override;
 	};
 }
 

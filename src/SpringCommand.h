@@ -13,9 +13,9 @@ namespace BT {
 	public:
     SpringCommand(springai::OOAICallback* callback) : callback(callback) {}
 
-    virtual EvaluationResult tick(EvaluationContext& context) override { return execute(); }
+    virtual EvaluationResult tick(EvaluationContext& context) override { return execute(context.units()); }
 
-		virtual EvaluationResult execute() = 0;
+		virtual EvaluationResult execute(const std::vector<springai::Unit*> units) = 0;
 	};
 }
 #endif

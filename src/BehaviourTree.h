@@ -24,18 +24,26 @@ namespace BT {
 	public:
 		class Node;
 
-		class EvaluationContext {
-		public:
-			springai::OOAICallback* callback_;
-			EvaluationContext(springai::OOAICallback* callback) : callback_(callback) {}
+    class EvaluationContext
+    {
+    public:
+      springai::OOAICallback* callback_;
+      EvaluationContext(springai::OOAICallback* callback)
+        : callback_(callback), units_(callback->GetSelectedUnits())
+      {
+      }
 
-			void initialize();
-			EvaluationResult tickNode(Node* node);
-			void finalize();
-		private:
-			std::vector<Node*> currentlyRunning;
-			std::vector<Node*> previouslyRunning;
-		};
+      const std::vector<springai::Unit*> units() const { return units_; }
+      void setUnits(const std::vector<springai::Unit*> units) { units_ = units; }
+
+      void initialize();
+      EvaluationResult tickNode(Node* node);
+      void finalize();
+    private:
+      std::vector<springai::Unit*> units_;
+      std::vector<Node*> currentlyRunning;
+      std::vector<Node*> previouslyRunning;
+    };
 
 		struct NodeParameter {
 			std::string name = "param";
