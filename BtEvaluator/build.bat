@@ -4,11 +4,16 @@ set SPRINGDATA_DIR=%2
 set SolutionDir=%3
 
 REM Building
-cd %SPRING_SOURCE_DIR%build && mingw32-make -j4 BtEvaluator 
-if %errorlevel% neq 0 exit /b %errorlevel%
+cd %SPRING_SOURCE_DIR%build && mingw32-make -j4 BtEvaluator 2> %SolutionDir%BtEvaluator\errors.log
+if %errorlevel% neq 0 (
+  cd %SolutionDir%BtEvaluator && type errors.log | PowerShell -executionpolicy bypass -File GCCtoVSformatter.ps1
+  exit /b %errorlevel%
+)
+cd %SolutionDir%BtEvaluator && type errors.log | PowerShell -executionpolicy bypass -File GCCtoVSformatter.ps1
+
 
 REM Releasing the hold of DLL by spring
-cd %SolutionDir%\BtEvaluator && PowerShell -executionpolicy bypass -File SendCommandToSpring.ps1 -message "aikill 0"
+cd %SolutionDir%BtEvaluator && PowerShell -executionpolicy bypass -File SendCommandToSpring.ps1 -message "aikill 0"
 waitfor SomethingThatIsNeverHappening /t 1 2>NUL
 
 REM Copying to SpringData
