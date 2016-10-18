@@ -15,9 +15,7 @@ namespace BT {
 
     virtual std::string name() override { return "MoveCommand"; }
 
-		EvaluationResult execute() override{
-			auto units(callback->GetSelectedUnits()); // FIXME gets all units ... ?
-
+		EvaluationResult execute(const std::vector<springai::Unit*> units) override{
 			for (auto it = units.begin(); it != units.end(); ++it)
 			{
 				auto unit(*it);
@@ -28,7 +26,6 @@ namespace BT {
       
       return btRunning;
 		}
-
 	};
 }
 

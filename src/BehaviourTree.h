@@ -29,12 +29,18 @@ namespace BT
     {
     public:
       springai::OOAICallback* callback_;
-      EvaluationContext(springai::OOAICallback* callback) : callback_(callback) {}
+      EvaluationContext(springai::OOAICallback* callback)
+        : callback_(callback), units_(callback->GetSelectedUnits())
+      {
+      }
+
+      const std::vector<springai::Unit*> units() const { return units_; }
 
       void initialize();
       EvaluationResult tickNode(Node* node);
       void finalize();
     private:
+      std::vector<springai::Unit*> units_;
       std::vector<Node*> currentlyRunning;
       std::vector<Node*> previouslyRunning;
     };

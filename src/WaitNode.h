@@ -13,7 +13,7 @@ namespace BT {
     ~WaitNode() {}
 
     virtual std::string name() { return "WaitNode"; }
-    virtual EvaluationResult execute() override;
+    virtual EvaluationResult execute(const std::vector<springai::Unit*> units) override;
     virtual void reset() override;
   };
 }

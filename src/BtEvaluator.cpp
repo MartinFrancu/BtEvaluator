@@ -134,7 +134,7 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 		game->SendTextMessage(initMsg.c_str(), 0);
 		game->SendTextMessage("Lua Message Event. ", 0);
 		const char* message = static_cast<const SLuaMessageEvent*>(data)->inData;
-		resolveCommand(message)->execute();
+		resolveCommand(message)->execute(callback->GetSelectedUnits());
 		break;
 	}
 	default:

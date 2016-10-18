@@ -3,7 +3,7 @@
 
 using namespace BT;
 
-EvaluationResult FlipSensor::execute() {
+EvaluationResult FlipSensor::execute(const std::vector<springai::Unit*> units) {
   if (currentState_ == btSuccess)
     currentState_ = btFailure;
   else
