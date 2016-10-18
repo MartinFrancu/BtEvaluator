@@ -25,20 +25,22 @@ namespace BT {
 
 		int skirmishAIId;
 
-    BehaviourTree behaviourTree;
-    BehaviourTree::EvaluationContext context;
+		BehaviourTree behaviourTree;
+		BehaviourTree::EvaluationContext context;
 
 		SpringCommand* resolveCommand(const char*) const;
+
+		void resolveMessage(const char*);
+		void sendNodeDefs() const;
 	public:
 		explicit BtEvaluator(springai::OOAICallback* callback) :
 			callback(callback),
 			game(callback->GetGame()),
 			skirmishAIId(callback != nullptr ? callback->GetSkirmishAIId() : -1),
-      behaviourTree(),
-      context(callback)
-    {}
+			behaviourTree(),
+			context(callback) {}
 
-    void loadTree();
+		void loadTree();
 
 		~BtEvaluator() {}
 

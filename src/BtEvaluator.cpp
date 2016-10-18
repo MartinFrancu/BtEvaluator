@@ -66,37 +66,37 @@ enum EventTopic {
 using namespace BT;
 
 void BtEvaluator::loadTree() {
-  auto mainSequence = new SequenceNode();
-  {
-    mainSequence->add(new UnitReporter(callback));
-    /*
-    auto brancher = new ConditionNode(false);
-    {
-      auto condition = new FlipSensor(callback);
-      auto branchTrue = new SequenceNode();
-      {
-        auto firstEcho = new EchoCommand(callback, "true branch");
-        branchTrue->add(firstEcho);
-        auto waiting = new WaitNode(callback, 6);
-        branchTrue->add(waiting);
-        auto lastEcho = new EchoCommand(callback, "true branch ends");
-        branchTrue->add(lastEcho);
-      }
-      auto branchFalse = new SequenceNode();
-      {
-        auto firstEcho = new EchoCommand(callback, "false branch");
-        branchFalse->add(firstEcho);
-        auto waiting = new WaitNode(callback, 3);
-        branchFalse->add(waiting);
-        auto lastEcho = new EchoCommand(callback, "false branch ends");
-        branchFalse->add(lastEcho);
-      }
-      brancher->setChildren(condition, branchTrue, branchFalse);
-    }
-    mainSequence->add(brancher);
-    */
-  }
-  behaviourTree.setRoot(mainSequence);
+	auto mainSequence = new SequenceNode();
+	{
+		mainSequence->add(new UnitReporter(callback));
+		/*
+		auto brancher = new ConditionNode(false);
+		{
+		  auto condition = new FlipSensor(callback);
+		  auto branchTrue = new SequenceNode();
+		  {
+			auto firstEcho = new EchoCommand(callback, "true branch");
+			branchTrue->add(firstEcho);
+			auto waiting = new WaitNode(callback, 6);
+			branchTrue->add(waiting);
+			auto lastEcho = new EchoCommand(callback, "true branch ends");
+			branchTrue->add(lastEcho);
+		  }
+		  auto branchFalse = new SequenceNode();
+		  {
+			auto firstEcho = new EchoCommand(callback, "false branch");
+			branchFalse->add(firstEcho);
+			auto waiting = new WaitNode(callback, 3);
+			branchFalse->add(waiting);
+			auto lastEcho = new EchoCommand(callback, "false branch ends");
+			branchFalse->add(lastEcho);
+		  }
+		  brancher->setChildren(condition, branchTrue, branchFalse);
+		}
+		mainSequence->add(brancher);
+		*/
+	}
+	behaviourTree.setRoot(mainSequence);
 }
 
 SpringCommand* BtEvaluator::resolveCommand(const char* message) const {
@@ -115,38 +115,60 @@ SpringCommand* BtEvaluator::resolveCommand(const char* message) const {
 	}
 }
 
+void BtEvaluator::resolveMessage(const char* message) {
+	std::stringstream sstream(message);
+	std::string betsString;
+	sstream >> betsString;
+	if (betsString != "BETS") {
+		return;
+	}
+
+	std::string messageCode;
+	sstream >> messageCode;
+
+	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
+		sendNodeDefs();
+	} else if (messageCode == "CREATE_TREE") {
+		// TODO
+	}
+}
+
+void BtEvaluator::sendNodeDefs() const {
+	game->SendTextMessage(behaviourTree.getAllNodeDefinitions().c_str(), 0);
+}
+
 int BtEvaluator::HandleEvent(int event, const void* data) {
-	std::string initMsg("");/* json({
-    { "test", 1 },
-    { "pole", {
-      1,
-      2,
+	// JSON usage
+	/*std::string initMsg(json({
+	{ "test", 1 },
+	{ "pole", {
+	  1,
+	  2,
 	  3
-    } },
-    { "struktura", json({
-      { "polozka", "test" }
-    }) }
+	} },
+	{ "struktura", json({
+	  { "polozka", "test" }
+	}) }
   }).dump());
   */
-  switch (event) {
+	switch (event) {
 	case EVENT_UPDATE:
 	{ // every frame UPDATE_EVENT is called
 		//game->SendTextMessage("Update Event ", 0);
 		const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
-		if(updateData->frame % 30 == 0) // tick the tree only once a "game second" == 30 ticks
-		    behaviourTree.tick(context);
+		if (updateData->frame % 30 == 0) // tick the tree only once a "game second" == 30 ticks
+			behaviourTree.tick(context);
 		break;
 	}
 	case EVENT_LUA_MESSAGE:
 	{
-		game->SendTextMessage(initMsg.c_str(), 0);
 		game->SendTextMessage("Lua Message Event. ", 0);
 
-		game->SendTextMessage(("BT-JSON: " + behaviourTree.getAllNodeDefinitions()).c_str(), 0);
 		const char* message = static_cast<const SLuaMessageEvent*>(data)->inData;
-    auto units = callback->GetSelectedUnits();
-    context.setUnits(units);
-		resolveCommand(message)->execute(units);
+		resolveMessage(message);
+		auto units = callback->GetSelectedUnits();
+		context.setUnits(units);
+		//resolveCommand(message)->execute(units);
 		break;
 	}
 	default:
