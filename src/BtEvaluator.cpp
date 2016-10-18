@@ -22,6 +22,7 @@
 #include "WaitNode.h"
 #include "FlipSensor.h"
 #include "MoveCommand.h"
+#include "UnitReporter.h"
 
 #include <string>
 #include <sstream>
@@ -65,30 +66,37 @@ enum EventTopic {
 using namespace BT;
 
 void BtEvaluator::loadTree() {
-  auto root = new ConditionNode(false);
+  auto mainSequence = new SequenceNode();
   {
-    auto condition = new FlipSensor(callback);
-    auto branchTrue = new SequenceNode();
+    mainSequence->add(new UnitReporter(callback));
+    /*
+    auto brancher = new ConditionNode(false);
     {
-      auto firstEcho = new EchoCommand(callback, "true branch");
-      branchTrue->add(firstEcho);
-      auto waiting = new WaitNode(callback, 6);
-      branchTrue->add(waiting);
-      auto lastEcho = new EchoCommand(callback, "true branch ends");
-      branchTrue->add(lastEcho);
+      auto condition = new FlipSensor(callback);
+      auto branchTrue = new SequenceNode();
+      {
+        auto firstEcho = new EchoCommand(callback, "true branch");
+        branchTrue->add(firstEcho);
+        auto waiting = new WaitNode(callback, 6);
+        branchTrue->add(waiting);
+        auto lastEcho = new EchoCommand(callback, "true branch ends");
+        branchTrue->add(lastEcho);
+      }
+      auto branchFalse = new SequenceNode();
+      {
+        auto firstEcho = new EchoCommand(callback, "false branch");
+        branchFalse->add(firstEcho);
+        auto waiting = new WaitNode(callback, 3);
+        branchFalse->add(waiting);
+        auto lastEcho = new EchoCommand(callback, "false branch ends");
+        branchFalse->add(lastEcho);
+      }
+      brancher->setChildren(condition, branchTrue, branchFalse);
     }
-    auto branchFalse = new SequenceNode();
-    {
-      auto firstEcho = new EchoCommand(callback, "false branch");
-      branchFalse->add(firstEcho);
-      auto waiting = new WaitNode(callback, 3);
-      branchFalse->add(waiting);
-      auto lastEcho = new EchoCommand(callback, "false branch ends");
-      branchFalse->add(lastEcho);
-    }
-    root->setChildren(condition, branchTrue, branchFalse);
+    mainSequence->add(brancher);
+    */
   }
-  behaviourTree.setRoot(root);
+  behaviourTree.setRoot(mainSequence);
 }
 
 SpringCommand* BtEvaluator::resolveCommand(const char* message) const {
@@ -134,7 +142,9 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 		game->SendTextMessage(initMsg.c_str(), 0);
 		game->SendTextMessage("Lua Message Event. ", 0);
 		const char* message = static_cast<const SLuaMessageEvent*>(data)->inData;
-		resolveCommand(message)->execute(callback->GetSelectedUnits());
+    auto units = callback->GetSelectedUnits();
+    context.setUnits(units);
+		resolveCommand(message)->execute(units);
 		break;
 	}
 	default:

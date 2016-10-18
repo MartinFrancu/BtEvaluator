@@ -35,6 +35,7 @@ namespace BT
       }
 
       const std::vector<springai::Unit*> units() const { return units_; }
+      void setUnits(const std::vector<springai::Unit*> units) { units_ = units; }
 
       void initialize();
       EvaluationResult tickNode(Node* node);

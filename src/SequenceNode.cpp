@@ -16,6 +16,7 @@ EvaluationResult SequenceNode::tick(EvaluationContext& context)
       return btFailure;
     }
   }
+  reset();
   return btSuccess;
 }
 
