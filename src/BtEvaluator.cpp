@@ -259,8 +259,7 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 		}
 	}
 
-	auto& id = tree["id"];
-	return factory->createNode(id.is_string() ? id.get<std::string>() : std::to_string(++nodeIdCounter), parameters, children);
+	return factory->createNode(tree.find("id") != tree.end() ? tree["id"].get<std::string>() : std::to_string(++nodeIdCounter), parameters, children);
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {
