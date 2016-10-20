@@ -11,8 +11,7 @@ Function Send-StringOverTcp (
     {
         $ErrorActionPreference = "Stop"
         $TCPClient  = New-Object Net.Sockets.TcpClient
-        $IPEndpoint = New-Object Net.IPEndPoint($([Net.Dns]::GetHostEntry($Hostname)).AddressList[0], $Port)
-        $TCPClient.Connect($IPEndpoint)
+        $TCPClient.Connect($Hostname, $Port)
         $NetStream  = $TCPClient.GetStream()
         [Byte[]]$Buffer = [Text.Encoding]::ASCII.GetBytes($DataToSend)
         $NetStream.Write($Buffer, 0, $Buffer.Length)
