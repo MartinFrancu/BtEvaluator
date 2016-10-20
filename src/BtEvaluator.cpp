@@ -234,7 +234,11 @@ void BtEvaluator::broadcastNodeDefinitions() const {
 std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohmann::json& tree) {
 	typedef BehaviourTree::Node::Factory::ParameterValuePlaceholder ParameterValuePlaceholder;
 
-	auto factoryIterator = nodeFactories.find(tree["type"]);
+	std::string type = tree.find("type") != tree.end() ? tree["type"] : tree["nodeType"];
+	if(type.size() > 0) // TODO: temporary workaround as node types from BtCreator have uppercase first character
+		type[0] = std::tolower(type[0]);
+
+	auto factoryIterator = nodeFactories.find(type);
 	if (factoryIterator == nodeFactories.end()) {
 		return nullptr;
 	}
