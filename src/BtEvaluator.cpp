@@ -22,13 +22,14 @@
 #include "WaitNode.h"
 #include "FlipSensor.h"
 #include "MoveCommand.h"
-#include "UnitReporter.h"
+#include "GroupReporter.h"
 
+#include <memory>
 #include <string>
 #include <sstream>
 
-//#include "json.hpp"
-//using json = nlohmann::json;
+#include <json.hpp>
+using json = nlohmann::json;
 
 // Every event has its own event struct defined on AISEvents.h, which is passed as const void* data to HandleEvenet. 
 /*
@@ -65,6 +66,53 @@ enum EventTopic {
 
 using namespace BT;
 
+const BehaviourTree::Node::Factory* factory(const BehaviourTree::Node::Factory* f) { return f; }
+
+BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
+	callback(callback),
+	game(callback->GetGame()),
+	lua(callback->GetLua()),
+	skirmishAIId(callback != nullptr ? callback->GetSkirmishAIId() : -1),
+	nodeIdCounter(0),
+	behaviourTree(),
+	context(callback),
+	nodeFactories() {
+
+	for (auto factory : {
+		factory(new SequenceNode::Factory()),
+		factory(new ConditionNode::Factory()),
+		factory(new EchoCommand::Factory(callback)),
+		factory(new MoveCommand::Factory(callback)),
+		factory(new FlipSensor::Factory(callback)),
+		factory(new WaitNode::Factory(callback)),
+		factory(new GroupReporter::Factory(callback))
+	}) {
+		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
+	}
+	
+	try {
+		json tree = R"({
+  "type": "sequence",
+	"children": [
+		{ "type": "groupReporter", "parameters": [ { "name": "reportCount", "value": 2 } ] },
+		{ "type": "wait", "parameters": [ { "name": "time", "value": 10 } ] },
+		{ "type": "echo", "parameters": [ { "name": "message", "value": "My custom message" } ] },
+		{ "type": "condition", "children": [
+			{ "type": "flipSensor" },
+			{ "type": "wait", "parameters": [ { "name": "time", "value": 5 } ] },
+			{ "type": "wait", "parameters": [ { "name": "time", "value": 2 } ] }
+		] }
+	]
+})"_json;
+
+		behaviourTree.setRoot(createTreeFromJSON(tree).release());
+	}	catch (std::logic_error err) {
+		game->SendTextMessage(err.what(), 0);
+	}
+}
+
+
+/*
 void BtEvaluator::loadTree() {
 	auto mainSequence = new SequenceNode();
 	{
@@ -94,47 +142,121 @@ void BtEvaluator::loadTree() {
 		  brancher->setChildren(condition, branchTrue, branchFalse);
 		}
 		mainSequence->add(brancher);
-		*/
+		*//*
 	}
 	behaviourTree.setRoot(mainSequence);
 }
+*/
 
-SpringCommand* BtEvaluator::resolveCommand(const char* message) const {
-	std::stringstream sstream(message);
-	std::string commandCode;
-	sstream >> commandCode;
-
-	if (commandCode == "Move") {
-		return new MoveCommand(callback);
-	} else if (commandCode == "Msg") {
-		std::string msg;
-		sstream >> msg;
-		return new EchoCommand(callback, msg);
-	} else {
-		throw std::invalid_argument("Couldn't resolve command: " + commandCode);
-	}
+void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
+	std::string message = "BETS " + messageType;
+	game->SendTextMessage(message.c_str(), -1);
+	lua->CallRules(message.c_str(), -1);
+}
+void BtEvaluator::sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const {
+	std::string message = "BETS " + messageType + " " + data.dump();
+	game->SendTextMessage(message.c_str(), -1);
+	lua->CallRules(message.c_str(), -1);
 }
 
-void BtEvaluator::resolveMessage(const char* message) {
+void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	std::stringstream sstream(message);
 	std::string betsString;
 	sstream >> betsString;
 	if (betsString != "BETS") {
-		return;
+		return; // not a message for us
 	}
 
 	std::string messageCode;
 	sstream >> messageCode;
 
+	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
-		sendNodeDefs();
-	} else if (messageCode == "CREATE_TREE") {
-		// TODO
+		broadcastNodeDefinitions();
+	}	else {
+		try {
+			json data = json::parse(sstream);
+
+			// messages with data
+			if (messageCode == "CREATE_TREE") {
+				context = BehaviourTree::EvaluationContext(callback);
+				behaviourTree.setRoot(createTreeFromJSON(data).release());
+			}
+		}	catch (std::logic_error err) {
+			// FIXME: logic_error can be raised by other things than the json library
+			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
+		}
 	}
 }
 
-void BtEvaluator::sendNodeDefs() const {
-	game->SendTextMessage(behaviourTree.getAllNodeDefinitions().c_str(), 0);
+void BtEvaluator::broadcastNodeDefinitions() const {
+	json definitions;
+
+	for (auto& pair : nodeFactories) {
+		auto& name = pair.first;
+		auto& factory = pair.second;
+		json children, parameters;
+
+		for (auto& parameter : factory->parameters()) {
+			parameters.push_back({
+				{ "name", parameter.name },
+				{ "variableType", parameter.variableType },
+				{ "defaultValue ", parameter.defaultValue },
+				{ "componentType", parameter.componentType },
+			});
+		}
+
+		if (factory->unlimitedChildren()) {
+			children = nullptr;
+		} else {
+			children = json::array();
+			int i = 0;
+			for (auto& child : factory->children()) {
+				children.push_back({
+					{ "name", ++i }
+				});
+			}
+		}
+
+		definitions.push_back({
+			{ "name", name },
+			{ "children", children },
+			{ "tooltip", factory->tooltip() },
+			{ "parameters", parameters },
+			{ "defaultWidth", factory->defaultWidth() },
+			{ "defaultHeight", factory->defaultHeight() }
+		});
+	}
+
+	sendLuaMessage("NODE_DEFINITIONS", definitions);
+}
+
+std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohmann::json& tree) {
+	typedef BehaviourTree::Node::Factory::ParameterValuePlaceholder ParameterValuePlaceholder;
+
+	auto factoryIterator = nodeFactories.find(tree["type"]);
+	if (factoryIterator == nodeFactories.end()) {
+		return nullptr;
+	}
+	auto& factory = factoryIterator->second;
+
+	std::map<std::string, ParameterValuePlaceholder> parameters;
+	if (tree.find("parameters") != tree.end()) {
+		for (auto& parameter : tree["parameters"]) {
+			auto& value = parameter["value"];
+			parameters[parameter["name"]] = ParameterValuePlaceholder{ value.is_string() ? value.get<std::string>() : value.dump() };
+		}
+	}
+
+	std::vector<std::unique_ptr<BehaviourTree::Node>> children;
+	if (tree.find("children") != tree.end()) {
+		for (auto& child : tree["children"]) {
+			children.push_back(createTreeFromJSON(child));
+		}
+	}
+
+	auto& id = tree["id"];
+	return factory->createNode(id.is_string() ? id.get<std::string>() : std::to_string(++nodeIdCounter), parameters, children);
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {
@@ -162,10 +284,10 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 	}
 	case EVENT_LUA_MESSAGE:
 	{
-		game->SendTextMessage("Lua Message Event. ", 0);
+		std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
+		game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
+		receiveLuaMessage(message);
 
-		const char* message = static_cast<const SLuaMessageEvent*>(data)->inData;
-		resolveMessage(message);
 		auto units = callback->GetSelectedUnits();
 		context.setUnits(units);
 		//resolveCommand(message)->execute(units);

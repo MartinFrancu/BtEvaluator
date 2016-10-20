@@ -24,3 +24,13 @@ void SequenceNode::reset()
 {
   nextChildIndex_ = 0;
 }
+
+
+std::unique_ptr<BehaviourTree::GenericNode> SequenceNode::Factory::createNode(
+	const std::string& id,
+	const std::map<std::string, ParameterValuePlaceholder>& parameters
+	) const {
+	return std::unique_ptr<BehaviourTree::GenericNode>(
+		new SequenceNode(id)
+		);
+}

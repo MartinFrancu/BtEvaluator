@@ -31,3 +31,13 @@ void ConditionNode::reset()
 {
   lastResult_ = btUndefined;
 }
+
+
+std::unique_ptr<BehaviourTree::TernaryNode> ConditionNode::Factory::createNode(
+	const std::string& id,
+	const std::map<std::string, ParameterValuePlaceholder>& parameters
+	) const {
+	return std::unique_ptr<BehaviourTree::TernaryNode>(
+		new ConditionNode(id, false)
+		);
+}

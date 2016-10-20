@@ -2,12 +2,9 @@
 
 #include "Game.h"
 
-#include "json.hpp"
 #include "SequenceNode.h"
 #include "ConditionNode.h"
 #include "EchoCommand.h"
-
-using json = nlohmann::json;
 
 using namespace BT;
 using namespace std;
@@ -38,33 +35,11 @@ void BehaviourTree::EvaluationContext::finalize() {
 			(*previousIt)->reset();
 	}
 }
-json BehaviourTree::Node::getNodeDefinition() {
-	auto childDefinitions(getChildDefinitions());
 
-	vector<json> childDefsJson;
-
-	for (const auto& childDef : childDefinitions)
-	{
-		childDefsJson.push_back(childDef.getJson());
-	}
-
-	vector<string> serializedParams;
-	for (auto& param : parameters) {
-		serializedParams.push_back(param.serialize());
-	}
-
-	return json({
-		{ "name", name() },
-		{ "children", childDefsJson },
-		{ "tooltip", tooltip() },
-		{ "parameters", serializedParams },
-		{ "defaultWidth",defaultWidth()},
-		{ "defaultHeight", defaultHeight() }
-	});
-}
 
 void BehaviourTree::Node::connectTo(Node* node, std::unique_ptr<Node>& link) {
-	node->parent_ = this;
+	if(node != 0)
+		node->parent_ = this;
 	link.reset(node);
 }
 
@@ -77,9 +52,7 @@ void BehaviourTree::GenericNode::add(Node* node) {
 
 BehaviourTree::BehaviourTree()
 {
-	// TODO add all node types
-	allNodeTypes.push_back(unique_ptr<SequenceNode>(new SequenceNode()));
-	allNodeTypes.push_back(unique_ptr<ConditionNode>(new ConditionNode(false)));
+
 }
 
 void BehaviourTree::tick(EvaluationContext& context) {
@@ -87,19 +60,4 @@ void BehaviourTree::tick(EvaluationContext& context) {
 	if (root_ != nullptr)
 		context.tickNode(root_.get());
 	context.finalize();
-}
-
-std::string BehaviourTree::getAllNodeDefinitions() const
-{
-	vector<json> nodesJsons;
-	for (auto& node : allNodeTypes)
-	{
-		nodesJsons.push_back(node->getNodeDefinition());
-	}
-	return json(nodesJsons).dump();
-}
-
-string BehaviourTree::NodeParameter::serialize() const {
-	return json({ {"name", name}, { "variableType", variableType }, {"defaultValue", defaultValue }, { "componentType", componentType }
-	}).dump();
 }

@@ -23,14 +23,23 @@ function listenerOnTestButtonClick(self)
 	Spring.SendSkirmishAIMessage(Spring.GetLocalPlayerID(), "Test message from widget - what is written here? Heh?. ")
 	return true
 end
-function listenerOnMessageButtonClick (self)
-	Spring.Echo ("Message command sent from widget.")
-	Spring.SendSkirmishAIMessage (Spring.GetLocalPlayerID (), "Msg MessageCommand executed")
+function listenerOnNodeDefinitionButtonClick (self)
+	Spring.Echo ("Requesting node definitions.")
+	Spring.SendSkirmishAIMessage (Spring.GetLocalPlayerID (), "BETS REQUEST_NODE_DEFINITIONS")
 	return true
 end
 function listenerOnMoveButtonClick (self)
-	Spring.Echo ("Move command sent from widget.")
-	Spring.SendSkirmishAIMessage (Spring.GetLocalPlayerID (), "Move")
+	local tree = [[{
+	"type": "condition",
+	"children": [
+		{ "type": "flipSensor" },
+		{ "type": "echo", "parameters": [ { "name": "message", "value": "Created tree" } ] },
+		{ "type": "wait", "parameters": [ { "name": "time", "value": 5 } ] }
+	]
+}]]
+
+	Spring.Echo ("Creating tree " .. tree)
+	Spring.SendSkirmishAIMessage (Spring.GetLocalPlayerID (), "BETS CREATE_TREE " .. tree)
 	return true
 end
 
@@ -57,19 +66,19 @@ function widget:Initialize()
 		height = 60,
 	}
 
-	msgCommandButton = Chili.Button:New{
+	nodeDefinitionRequestButton = Chili.Button:New{
 		parent = Screen0,
-		caption = "Send message command",
+		caption = "Retrieve node definitions",
 		x = '70%',
 		y = '90%',
-		OnClick = { listenerOnMessageButtonClick },
+		OnClick = { listenerOnNodeDefinitionButtonClick },
 		width = 150,
 		height = 60,
 	}
 
-	moveCommandButton = Chili.Button:New {
+	createTreeCommandButton = Chili.Button:New {
 		parent = Screen0,
-		caption = "Move selected",
+		caption = "Create tree",
 		x = '60%',
 		y = '90%',
 		OnClick = { listenerOnMoveButtonClick },

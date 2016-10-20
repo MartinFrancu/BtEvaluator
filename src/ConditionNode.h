@@ -2,6 +2,7 @@
 #define _CONDITIONNODE_H
 
 #include "BehaviourTree.h"
+#include "BehaviourTreeFactory.h"
 
 namespace BT
 {
@@ -9,7 +10,8 @@ namespace BT
   {
     typedef BehaviourTree::EvaluationContext EvaluationContext;
   public:
-    ConditionNode(bool conditionRepeatable) :
+    ConditionNode(const std::string& id, bool conditionRepeatable) :
+			TernaryNode(id),
       conditionRepeatable_(conditionRepeatable),
       lastResult_(btUndefined)
     {}
@@ -18,7 +20,23 @@ namespace BT
     virtual std::string name() { return "ConditionNode"; }
     virtual EvaluationResult tick(EvaluationContext& context) override;
     virtual void reset() override;
-  private:
+
+		class Factory : public TernaryNode::Factory {
+		private:
+			typedef BehaviourTree::ChildDefinition ChildDefinition;
+		public:
+			Factory() : TernaryNode::Factory() {}
+			virtual std::string typeName() const { return "condition"; }
+		protected:
+			virtual ChildDefinition firstChild() const { return ChildDefinition(); }
+			virtual ChildDefinition secondChild() const { return ChildDefinition(); }
+			virtual ChildDefinition thirdChild() const { return ChildDefinition(); }
+			virtual std::unique_ptr<TernaryNode> createNode(
+				const std::string& id,
+				const std::map<std::string, ParameterValuePlaceholder>& parameters
+				) const;
+		};
+	private:
     bool conditionRepeatable_;
 
     // evaluation variable

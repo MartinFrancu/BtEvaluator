@@ -1,5 +1,5 @@
-#ifndef MOVECOMMAND_H
-#define MOVECOMMAND_H
+#ifndef _MOVECOMMAND_H
+#define _MOVECOMMAND_H
 
 #include "SpringCommand.h"
 #include "Unit.h"
@@ -9,8 +9,8 @@ namespace BT {
 	class MoveCommand : public SpringCommand {
 	public:
 
-		explicit MoveCommand(springai::OOAICallback* callback)
-			: SpringCommand(callback) {}
+		explicit MoveCommand(const std::string& id, springai::OOAICallback* callback)
+			: SpringCommand(id, callback) {}
 		
 
     virtual std::string name() override { return "MoveCommand"; }
@@ -26,8 +26,23 @@ namespace BT {
       
       return btRunning;
 		}
+
+		class Factory : public SpringCommand::Factory {
+		public:
+			Factory(springai::OOAICallback* callback) : SpringCommand::Factory(callback) {}
+			virtual std::string typeName() const { return "move"; }
+		protected:
+			virtual std::unique_ptr<LeafNode> createNode(
+				const std::string& id,
+				const std::map<std::string, ParameterValuePlaceholder>& parameters
+				) const	{
+				return std::unique_ptr<BehaviourTree::LeafNode>(
+					new MoveCommand(id, callback_)
+					);
+			}
+		};
 	};
 }
 
-#endif
+#endif // _MOVECOMMAND_H
 

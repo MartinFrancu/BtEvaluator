@@ -8,11 +8,23 @@ namespace BT {
   private:
 		std::string message;
 	public:
-		explicit EchoCommand(springai::OOAICallback* callback, std::string message) : SpringCommand(callback), message(message) {}
+		explicit EchoCommand(const std::string& id, springai::OOAICallback* callback, const std::string& message)
+			: SpringCommand(id, callback), message(message) {}
 		~EchoCommand() {}
 
     virtual std::string name() { return "EchoCommand"; }
     virtual EvaluationResult execute(const std::vector<springai::Unit*> units) override;
+
+		class Factory : public SpringCommand::Factory {
+		public:
+			Factory(springai::OOAICallback* callback) : SpringCommand::Factory(callback) {}
+			virtual std::string typeName() const { return "echo"; }
+		protected:
+			virtual std::unique_ptr<LeafNode> createNode(
+				const std::string& id,
+				const std::map<std::string, ParameterValuePlaceholder>& parameters
+				) const;
+		};
 	};
 }
 

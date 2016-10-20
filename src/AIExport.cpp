@@ -39,7 +39,6 @@ EXPORT(int) init(int skirmishAIId, const struct SSkirmishAICallback* innerCallba
 	try {
 		springai::OOAICallback* clb = springai::WrappOOAICallback::GetInstance(innerCallback, skirmishAIId);
 		BtEvaluator* ai = new BtEvaluator(clb);
-    ai->loadTree();
 
 		BtEvaluators[skirmishAIId] = ai;
 		BtEvaluatorCallbacks[skirmishAIId] = clb;

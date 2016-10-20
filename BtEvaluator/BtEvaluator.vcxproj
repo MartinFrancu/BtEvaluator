@@ -88,6 +88,7 @@ build.bat "$(SPRING_SOURCE_DIR)" "$(SPRINGDATA_DIR)" "$(SolutionDir)"</NMakeReBu
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\*.lua" />
+    <None Include="..\widgets\*.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

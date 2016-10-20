@@ -5,7 +5,6 @@
 
 #include <vector>
 #include <memory>
-#include <json.hpp>
 
 namespace BT {
 
@@ -24,8 +23,7 @@ namespace BT {
 	public:
 		class Node;
 
-    class EvaluationContext
-    {
+    class EvaluationContext {
     public:
       springai::OOAICallback* callback_;
       EvaluationContext(springai::OOAICallback* callback)
@@ -45,69 +43,60 @@ namespace BT {
       std::vector<Node*> previouslyRunning;
     };
 
-		struct NodeParameter {
-			std::string name = "param";
-			std::string variableType = "string";
-			std::string defaultValue = "testVal";
+		struct ParameterDefinition {
+			std::string name;
+      std::string variableType = "string";
 			std::string componentType = "textBox";
-			std::string serialize() const;
-		};
-
-		struct ChildDefinition {
-			nlohmann::json getJson() const
-			{
-				return nlohmann::json();
-			}
-		};
+      std::string defaultValue = "testVal";
+    };
+		struct ChildDefinition { };
 
 		class Node {
 		public:
-			Node(int children = 0) : children_(children), parent_(nullptr) {}
+      class Factory;
+
+			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr) {}
 			virtual ~Node() {}
+
+			const std::string& id() const { return id_; }
 
 			virtual std::string name() = 0;
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
 			virtual void reset() {} // reset can quite often do nothing
-
-			nlohmann::json getNodeDefinition();
 		protected:
 			void connectTo(Node* node, std::unique_ptr<Node>& link);
 			std::vector<std::unique_ptr<Node>> children_ = std::vector<std::unique_ptr<Node>>();
-			std::vector<NodeParameter> parameters;
-
-			// Node definition
-			virtual int defaultHeight() { return 10; }; // TODO replace with real values
-			virtual int defaultWidth() { return 20; };
-			virtual std::string tooltip() { return "test tooltip"; };
-			virtual std::vector<ChildDefinition> getChildDefinitions() const {
-				return std::vector<ChildDefinition>(children_.size());
-			}
 		private:
+			std::string id_;
 			Node* parent_; // weak reference
 
 		};
 
 		class LeafNode : public Node {
 		public:
-			LeafNode() : Node(0) {}
+			LeafNode(const std::string& id) : Node(id, 0) {}
+
+			class Factory;
 		};
 
 		class UnaryNode : public Node {
 		public:
-			UnaryNode() : Node(1) {}
+			UnaryNode(const std::string& id) : Node(id, 1) {}
 			virtual ~UnaryNode() {}
+
+			class Factory;
 
 			void setChild(Node* node) { connectTo(node, children_[0]); }
 
 			Node* child() { return children_[0].get(); }
-		private:
-			//std::unique_ptr<Node> child_;
 		};
 
 		class BinaryNode : public Node {
 		public:
-			BinaryNode() : Node(2) {}
+			BinaryNode(const std::string& id) : Node(id, 2) {}
 			virtual ~BinaryNode() {}
+
+			class Factory;
 
 			void setChildren(Node* left, Node* right) { setLeftChild(left); setRightChild(right); }
 			void setLeftChild(Node* node) { connectTo(node, children_[0]); }
@@ -115,15 +104,14 @@ namespace BT {
 
 			Node* leftChild() { return children_[0].get(); }
 			Node* rightChild() { return children_[1].get(); }
-		private:
-			// std::unique_ptr<Node> leftChild_;
-			// std::unique_ptr<Node> rightChild_;
 		};
 
 		class TernaryNode : public Node {
 		public:
-			TernaryNode() : Node(3) {}
+			TernaryNode(const std::string& id) : Node(id, 3) {}
 			virtual ~TernaryNode() {}
+
+			class Factory;
 
 			void setChildren(Node* first, Node* second, Node* third) { setFirstChild(first); setSecondChild(second); setThirdChild(third); }
 			void setFirstChild(Node* node) { connectTo(node, children_[0]); }
@@ -141,7 +129,10 @@ namespace BT {
 
 		class GenericNode : public Node {
 		public:
+			GenericNode(const std::string& id) : Node(id) {}
 			virtual ~GenericNode() {}
+
+			class Factory;
 
 			void add(Node* node);
 			std::size_t count() const {
@@ -158,15 +149,9 @@ namespace BT {
 
 		void setRoot(Node* node) { root_.reset(node); }
 
-		std::string getAllNodeDefinitions() const;
-
 	private:
 		std::unique_ptr<Node> root_;
-
-		std::vector<std::unique_ptr<Node>> allNodeTypes ;
 	};
-
-
 }
 
 #endif // _BEHAVIOURTREE_H

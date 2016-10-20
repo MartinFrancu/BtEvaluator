@@ -20,3 +20,19 @@ void WaitNode::reset()
 {
   counter_ = 0;
 }
+
+
+std::unique_ptr<BehaviourTree::LeafNode> WaitNode::Factory::createNode(
+	const std::string& id,
+	const std::map<std::string, ParameterValuePlaceholder>& parameters
+	) const {
+	std::size_t time = 5;
+
+	auto timeIterator = parameters.find("time");
+	if (timeIterator != parameters.end())
+		time = timeIterator->second.asInteger(time);
+
+	return std::unique_ptr<BehaviourTree::LeafNode>(
+		new WaitNode(id, callback_, time)
+		);
+}
