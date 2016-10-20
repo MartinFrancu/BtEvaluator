@@ -78,14 +78,14 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	context(callback),
 	nodeFactories() {
 
-	for (auto factory : {
-		factory(new SequenceNode::Factory()),
-		factory(new ConditionNode::Factory()),
-		factory(new EchoCommand::Factory(callback)),
-		factory(new MoveCommand::Factory(callback)),
-		factory(new FlipSensor::Factory(callback)),
-		factory(new WaitNode::Factory(callback)),
-		factory(new GroupReporter::Factory(callback))
+	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
+		new SequenceNode::Factory(),
+		new ConditionNode::Factory(),
+		new EchoCommand::Factory(callback),
+		new MoveCommand::Factory(callback),
+		new FlipSensor::Factory(callback),
+		new WaitNode::Factory(callback),
+		new GroupReporter::Factory(callback)
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}
@@ -111,6 +111,23 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	}
 }
 
+void BtEvaluator::update(int frame) {
+	// tick the tree only once a "game second" == 30 ticks
+	if (frame % 30 == 0)
+	{
+		behaviourTree.tick(context);
+
+		// UPDATE_STATES message
+		json update;
+		for (auto& finished : context.finished()) {
+			update[finished.first->id()] = nameOfEvaluationResult(finished.second);
+		}
+		for (auto& running : context.running()) {
+			update[running->id()] = nameOfEvaluationResult(btRunning);
+		}
+		sendLuaMessage("UPDATE_STATES", update);
+	}
+}
 
 /*
 void BtEvaluator::loadTree() {
@@ -151,12 +168,12 @@ void BtEvaluator::loadTree() {
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
 	std::string message = "BETS " + messageType;
 	game->SendTextMessage(message.c_str(), -1);
-	lua->CallRules(message.c_str(), -1);
+	lua->CallUI(message.c_str(), -1);
 }
 void BtEvaluator::sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const {
 	std::string message = "BETS " + messageType + " " + data.dump();
 	game->SendTextMessage(message.c_str(), -1);
-	lua->CallRules(message.c_str(), -1);
+	lua->CallUI(message.c_str(), -1);
 }
 
 void BtEvaluator::receiveLuaMessage(const std::string& message) {
@@ -195,13 +212,13 @@ void BtEvaluator::broadcastNodeDefinitions() const {
 	for (auto& pair : nodeFactories) {
 		auto& name = pair.first;
 		auto& factory = pair.second;
-		json children, parameters;
+		json children(json::array()), parameters(json::array());
 
 		for (auto& parameter : factory->parameters()) {
 			parameters.push_back({
 				{ "name", parameter.name },
 				{ "variableType", parameter.variableType },
-				{ "defaultValue ", parameter.defaultValue },
+				{ "defaultValue", parameter.defaultValue },
 				{ "componentType", parameter.componentType },
 			});
 		}
@@ -209,7 +226,6 @@ void BtEvaluator::broadcastNodeDefinitions() const {
 		if (factory->unlimitedChildren()) {
 			children = nullptr;
 		} else {
-			children = json::array();
 			int i = 0;
 			for (auto& child : factory->children()) {
 				children.push_back({
@@ -263,26 +279,12 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {
-	// JSON usage
-	/*std::string initMsg(json({
-	{ "test", 1 },
-	{ "pole", {
-	  1,
-	  2,
-	  3
-	} },
-	{ "struktura", json({
-	  { "polozka", "test" }
-	}) }
-  }).dump());
-  */
+
 	switch (event) {
 	case EVENT_UPDATE:
 	{ // every frame UPDATE_EVENT is called
-		//game->SendTextMessage("Update Event ", 0);
 		const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
-		if (updateData->frame % 30 == 0) // tick the tree only once a "game second" == 30 ticks
-			behaviourTree.tick(context);
+		update(updateData->frame);
 		break;
 	}
 	case EVENT_LUA_MESSAGE:
@@ -293,7 +295,6 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 
 		auto units = callback->GetSelectedUnits();
 		context.setUnits(units);
-		//resolveCommand(message)->execute(units);
 		break;
 	}
 	default:

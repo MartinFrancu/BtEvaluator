@@ -9,6 +9,18 @@ EvaluationResult EchoCommand::execute(const std::vector<springai::Unit*> units) 
 }
 
 
+std::vector<BehaviourTree::ParameterDefinition> EchoCommand::Factory::parameters() const
+{
+	return{
+		ParameterDefinition {
+			"message"
+			"string",
+			"textBox",
+			"Echo message"
+		}
+	};
+}
+
 std::unique_ptr<BehaviourTree::LeafNode> EchoCommand::Factory::createNode(
 	const std::string& id,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters

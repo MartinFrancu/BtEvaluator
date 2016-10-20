@@ -18,6 +18,16 @@ namespace BT {
 		// intermediary result
 		btRunning = 4
 	};
+	inline const char* nameOfEvaluationResult(EvaluationResult result) {
+		switch (result) {
+		case btUndefined: return "undefined";
+		case btSuccess: return "success";
+		case btFailure: return "failure";
+		case btRunning: return "running";
+		default: return "unknown";
+		}
+	}
+
 
 	class BehaviourTree {
 	public:
@@ -34,20 +44,24 @@ namespace BT {
       const std::vector<springai::Unit*> units() const { return units_; }
       void setUnits(const std::vector<springai::Unit*> units) { units_ = units; }
 
+			const std::vector<std::pair<Node*, EvaluationResult>>& finished() { return currentlyFinished; }
+			const std::vector<Node*>& running() { return currentlyRunning; }
+
       void initialize();
       EvaluationResult tickNode(Node* node);
       void finalize();
     private:
       std::vector<springai::Unit*> units_;
-      std::vector<Node*> currentlyRunning;
-      std::vector<Node*> previouslyRunning;
+      std::vector<std::pair<Node*, EvaluationResult>> currentlyFinished;
+			std::vector<Node*> currentlyRunning;
+			std::vector<Node*> previouslyRunning;
     };
 
 		struct ParameterDefinition {
 			std::string name;
-      std::string variableType = "string";
-			std::string componentType = "textBox";
-      std::string defaultValue = "testVal";
+			std::string variableType;
+			std::string componentType;
+			std::string defaultValue;
     };
 		struct ChildDefinition { };
 

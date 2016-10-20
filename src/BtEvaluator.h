@@ -34,6 +34,8 @@ namespace BT {
 		BehaviourTree behaviourTree;
 		BehaviourTree::EvaluationContext context;
 
+		void update(int frame);
+
 		//SpringCommand* resolveCommand(const std::string&) const;
 
 		void sendLuaMessage(const std::string& messageType) const;

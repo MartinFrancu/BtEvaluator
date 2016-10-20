@@ -13,14 +13,27 @@ using namespace std;
 void BehaviourTree::EvaluationContext::initialize() {
 	std::swap(previouslyRunning, currentlyRunning);
 	currentlyRunning.clear();
+	currentlyFinished.clear();
 }
 
 EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 	//callback_->GetGame()->SendTextMessage((node == nullptr ? "NULL" : node->name().c_str()), 0);
 
 	EvaluationResult result = node->tick(*this);
-	if (result == btRunning)
+	switch (result)
+	{
+	case btRunning:
 		currentlyRunning.push_back(node);
+		break;
+	case btSuccess:
+	case btFailure:
+		currentlyFinished.push_back(std::make_pair(node, result));
+		break;
+	default:
+		// unknown result
+		break;
+	}
+
 	return result;
 }
 
