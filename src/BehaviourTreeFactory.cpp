@@ -45,7 +45,9 @@ std::unique_ptr<BehaviourTree::Node> BehaviourTree::UnaryNode::Factory::createNo
 		throw "Invalid number of children.";
 
 	auto node = createNode(id, parameters);
-	node->setChild(children[0].release());
+	node->setChild(
+		children.size() <= 0 ? 0 : children[0].release()
+	);
 	return std::move(node);
 }
 
@@ -58,7 +60,10 @@ std::unique_ptr<BehaviourTree::Node> BehaviourTree::BinaryNode::Factory::createN
 		throw "Invalid number of children.";
 
 	auto node = createNode(id, parameters);
-	node->setChildren(children[0].release(), children[1].release());
+	node->setChildren(
+		children.size() <= 0 ? 0 : children[0].release(),
+		children.size() <= 1 ? 0 : children[1].release()
+	);
 	return std::move(node);
 }
 
@@ -71,7 +76,11 @@ std::unique_ptr<BehaviourTree::Node> BehaviourTree::TernaryNode::Factory::create
 		throw "Invalid number of children.";
 
 	auto node = createNode(id, parameters);
-	node->setChildren(children[0].release(), children[1].release(), children[2].release());
+	node->setChildren(
+		children.size() <= 0 ? 0 : children[0].release(),
+		children.size() <= 1 ? 0 : children[1].release(),
+		children.size() <= 2 ? 0 : children[2].release()
+	);
 	return std::move(node);
 }
 

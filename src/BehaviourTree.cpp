@@ -19,6 +19,9 @@ void BehaviourTree::EvaluationContext::initialize() {
 EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 	//callback_->GetGame()->SendTextMessage((node == nullptr ? "NULL" : node->name().c_str()), 0);
 
+	if (node == nullptr) // prevent attempts to tick a non-existant node/branch
+		return btFailure;
+
 	EvaluationResult result = node->tick(*this);
 	switch (result)
 	{
