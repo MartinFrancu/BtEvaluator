@@ -106,6 +106,9 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 })"_json;
 
 		behaviourTree.setRoot(createTreeFromJSON(tree).release());
+		broadcastNodeDefinitions();
+
+		game->SendTextMessage("Node definitions broadcast.", 0);
 	}	catch (std::logic_error err) {
 		game->SendTextMessage(err.what(), 0);
 	}
