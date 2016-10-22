@@ -135,10 +135,6 @@ namespace BT {
 			Node* firstChild() { return children_[0].get(); }
 			Node* secondChild() { return children_[1].get(); }
 			Node* thirdChild() { return children_[2].get(); }
-		private:
-			/* std::unique_ptr<Node> firstChild_;
-			 std::unique_ptr<Node> secondChild_;
-			 std::unique_ptr<Node> thirdChild_;*/
 		};
 
 		class GenericNode : public Node {
@@ -153,8 +149,6 @@ namespace BT {
 				return children_.size();
 			}
 			Node* child(std::size_t i) { return children_[i].get(); }
-		private:
-			// std::vector<std::unique_ptr<Node>> children_;
 		};
 
 		BehaviourTree();
