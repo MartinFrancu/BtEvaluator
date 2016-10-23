@@ -13,7 +13,7 @@ cd %SolutionDir%BtEvaluator && type errors.log | PowerShell -executionpolicy byp
 
 
 REM Releasing the hold of DLL by spring
-cd %SolutionDir%BtEvaluator && PowerShell -executionpolicy bypass -File SendCommandToSpring.ps1 -message "aikill 0"
+cd %SolutionDir%BtEvaluator && PowerShell -executionpolicy bypass -File SendCommandToSpring.ps1 -message "aikill Spring.GetLocalPlayerID()"
 waitfor SomethingThatIsNeverHappening /t 1 2>NUL
 
 REM Copying to SpringData

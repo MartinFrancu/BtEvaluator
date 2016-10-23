@@ -23,8 +23,8 @@ namespace BT {
 			) const = 0;
 
 		virtual std::string typeName() const = 0;
-		virtual int defaultHeight() const { return 110; };
-		virtual int defaultWidth() const { return 60; };
+		virtual int defaultHeight() const { return 60; };
+		virtual int defaultWidth() const { return 110; };
 		virtual std::string tooltip() const { return "Node '" + typeName() + "'"; };
 		virtual std::vector<ParameterDefinition> parameters() const { return{}; }
 		virtual bool unlimitedChildren() const = 0;
