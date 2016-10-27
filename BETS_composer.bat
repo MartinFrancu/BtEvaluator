@@ -1,0 +1,1 @@
+PowerShell -executionpolicy bypass -File BETS_composer.ps1
