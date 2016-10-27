@@ -22,7 +22,7 @@ namespace BT {
 		switch (result) {
 		case btUndefined: return "undefined";
 		case btSuccess: return "success";
-		case btFailure: return "failure";
+		case btFailure: return "failASDure";
 		case btRunning: return "running";
 		default: return "unknown";
 		}

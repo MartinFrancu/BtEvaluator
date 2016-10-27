@@ -82,9 +82,11 @@ build.bat "$(SPRING_SOURCE_DIR)" "$(SPRINGDATA_DIR)" "$(SolutionDir)"</NMakeReBu
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\*.cpp" />
+    <ClCompile Include="LuaCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\*.h" />
+    <ClInclude Include="LuaCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\*.lua" />
