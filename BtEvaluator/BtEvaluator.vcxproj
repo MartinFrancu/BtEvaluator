@@ -81,12 +81,20 @@ build.bat "$(SPRING_SOURCE_DIR)" "$(SPRINGDATA_DIR)" "$(SolutionDir)"</NMakeReBu
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\*.cpp" />
-    <ClCompile Include="LuaCommand.cpp" />
+    <ClCompile Include="..\src\AIExport.cpp" />
+    <ClCompile Include="..\src\BehaviourTree.cpp" />
+    <ClCompile Include="..\src\BehaviourTreeFactory.cpp" />
+    <ClCompile Include="..\src\BtEvaluator.cpp" />
+    <ClCompile Include="..\src\ConditionNode.cpp" />
+    <ClCompile Include="..\src\EchoCommand.cpp" />
+    <ClCompile Include="..\src\FlipSensor.cpp" />
+    <ClCompile Include="..\src\GroupReporter.cpp" />
+    <ClCompile Include="..\src\SequenceNode.cpp" />
+    <ClCompile Include="..\src\WaitNode.cpp" />
+    <ClCompile Include="..\src\LuaCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\*.h" />
-    <ClInclude Include="LuaCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\*.lua" />

@@ -29,6 +29,7 @@
 #include <sstream>
 
 #include <json.hpp>
+#include "LuaCommand.h"
 using json = nlohmann::json;
 
 // Every event has its own event struct defined on AISEvents.h, which is passed as const void* data to HandleEvenet. 
@@ -85,7 +86,8 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new MoveCommand::Factory(callback),
 		new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
-		new GroupReporter::Factory(callback)
+		new GroupReporter::Factory(callback),
+		new LuaCommand::Factory(callback)
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}
