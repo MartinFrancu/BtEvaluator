@@ -204,6 +204,10 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				context = BehaviourTree::EvaluationContext(callback);
 				behaviourTree.setRoot(createTreeFromJSON(data).release());
 			}
+			if (messageCode == "ASSIGN_UNITS")
+			{
+				context = BehaviourTree::EvaluationContext(callback);
+			}
 		}	catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
