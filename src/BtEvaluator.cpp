@@ -93,19 +93,34 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	}
 	
 	try {
+		/*json tree = R"({
+					  "type": "sequence",
+						"children": [
+							{ "type": "groupReporter", "parameters": [ { "name": "reportCount", "value": 2 } ] },
+							{ "type": "wait", "parameters": [ { "name": "time", "value": 10 } ] },
+							{ "type": "echo", "parameters": [ { "name": "message", "value": "My custom message" } ] },
+							{ "type": "condition", "children": [
+								{ "type": "flipSensor" },
+								{ "type": "wait", "parameters": [ { "name": "time", "value": 5 } ] },
+								{ "type": "wait", "parameters": [ { "name": "time", "value": 2 } ] }
+							] }
+						]
+					})"_json;*/
+
 		json tree = R"({
-  "type": "sequence",
-	"children": [
-		{ "type": "groupReporter", "parameters": [ { "name": "reportCount", "value": 2 } ] },
-		{ "type": "wait", "parameters": [ { "name": "time", "value": 10 } ] },
-		{ "type": "echo", "parameters": [ { "name": "message", "value": "My custom message" } ] },
-		{ "type": "condition", "children": [
-			{ "type": "flipSensor" },
-			{ "type": "wait", "parameters": [ { "name": "time", "value": 5 } ] },
-			{ "type": "wait", "parameters": [ { "name": "time", "value": 2 } ] }
-		] }
-	]
-})"_json;
+					  "type": "sequence",
+						"children": [
+							{ "type": "luaCommand", "parameters": [ 
+								{ "name": "scriptName", "value": "move.lua" },
+								{ "name": "parameter", "value": "150,0" } 
+							] },
+
+							{ "type": "luaCommand", "parameters": [ 
+								{ "name": "scriptName", "value": "move.lua" },
+								{ "name": "parameter", "value": "-150,0" } 
+							] }
+						]
+					})"_json;
 
 		behaviourTree.setRoot(createTreeFromJSON(tree).release());
 		broadcastNodeDefinitions();
@@ -118,7 +133,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
-	if (frame % 30 == 0)
+	if (frame % 10 == 0)
 	{
 		behaviourTree.tick(context);
 

@@ -6,24 +6,34 @@
 #include "json.hpp"
 
 using json = nlohmann::json;
+using namespace std;
 
-BT::EvaluationResult BT::LuaCommand::execute(const std::vector<springai::Unit*> units) {
-	std::vector<int> ids;
+BT::EvaluationResult BT::LuaCommand::execute(const vector<springai::Unit*> units) {
+	vector<int> ids;
 	for (auto unit : units) {
 		ids.push_back(unit->GetUnitId());
 	}
-	runLuaScript(json{ { "name", scriptName_ },{ "func", "RESET" }, {"units", ids} });
+	string result = runLuaScript(json{ { "name", scriptName_ },{ "func", "RUN" }, {"units", ids}, {"parameter", parameter_} });
+	if (result == "R") {
+		return btRunning;
+	} else if (result == "S") {
+		return btSuccess;
+	} else if (result == "F") {
+		return btFailure;
+	} else {
+		return btUndefined;
+	}
 }
 
 void BT::LuaCommand::reset() {
-	runLuaScript(json{ {"name", scriptName_ }, { "func", "RUN"} });
+	runLuaScript(json{ {"name", scriptName_ }, { "func", "RESET"} });
 }
 
-std::unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const std::string& id, const std::map<std::string, ParameterValuePlaceholder>& parameters) const {
-	return std::unique_ptr<BehaviourTree::LeafNode>(
-		new LuaCommand(id, callback_, parameters.at("scriptName").asString("luaecho.lua"))); // TODO 
+unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
+	return unique_ptr<LeafNode>(
+		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), parameters.at("parameter").asString()));
 }
 
-void BT::LuaCommand::runLuaScript(json params) const {
-	callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
+string BT::LuaCommand::runLuaScript(json params) const {
+	return callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
 }

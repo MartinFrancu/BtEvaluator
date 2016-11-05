@@ -6,7 +6,7 @@ namespace BT {
 
 	class LuaCommand : public SpringCommand {
 	public:
-		LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName) : SpringCommand(id, callback), scriptName_(scriptName) {}
+		LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName, std::string parameter = "") : SpringCommand(id, callback), scriptName_(scriptName), parameter_(parameter) {}
 		~LuaCommand() {};
 
 		EvaluationResult execute(const std::vector<springai::Unit*> units) override;
@@ -17,7 +17,10 @@ namespace BT {
 		class Factory : public SpringCommand::Factory {
 		public:
 			Factory(springai::OOAICallback* callback) : SpringCommand::Factory(callback) {}
-			virtual std::string typeName() const { return "luaCommand"; }
+
+			std::string typeName() const override {
+				return "luaCommand";
+			}
 		protected:
 			virtual std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
@@ -25,9 +28,10 @@ namespace BT {
 			) const;
 		};
 	private:
-		void runLuaScript(nlohmann::json params) const;
+		std::string runLuaScript(nlohmann::json params) const;
 
 		std::string scriptName_;
+		std::string parameter_;
 	};
 }
 
