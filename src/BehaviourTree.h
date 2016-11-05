@@ -22,7 +22,7 @@ namespace BT {
 		switch (result) {
 		case btUndefined: return "undefined";
 		case btSuccess: return "success";
-		case btFailure: return "failASDure";
+		case btFailure: return "failure";
 		case btRunning: return "running";
 		default: return "unknown";
 		}
@@ -42,7 +42,7 @@ namespace BT {
       }
 
       const std::vector<springai::Unit*> units() const { return units_; }
-      void setUnits(const std::vector<springai::Unit*> units) { units_ = units; }
+      void setUnits(const std::vector<springai::Unit*>& units) { units_ = units; }
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() { return currentlyFinished; }
 			const std::vector<Node*>& running() { return currentlyRunning; }
