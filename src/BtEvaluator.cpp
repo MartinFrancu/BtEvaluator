@@ -91,7 +91,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}
-	
+
 	try {
 		/*json tree = R"({
 					  "type": "sequence",
@@ -112,12 +112,19 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 						"children": [
 							{ "type": "luaCommand", "parameters": [ 
 								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "parameter", "value": "150,0" } 
+								{ "name": "parameter", "value": "100,0" } 
 							] },
-
 							{ "type": "luaCommand", "parameters": [ 
 								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "parameter", "value": "-150,0" } 
+								{ "name": "parameter", "value": "0,-100" } 
+							] },
+							{ "type": "luaCommand", "parameters": [ 
+								{ "name": "scriptName", "value": "move.lua" },
+								{ "name": "parameter", "value": "-100,0" } 
+							] },
+							{ "type": "luaCommand", "parameters": [ 
+								{ "name": "scriptName", "value": "move.lua" },
+								{ "name": "parameter", "value": "0,100" } 
 							] }
 						]
 					})"_json;
@@ -126,15 +133,14 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		broadcastNodeDefinitions();
 
 		game->SendTextMessage("Node definitions broadcast.", 0);
-	}	catch (std::logic_error err) {
+	} catch (std::logic_error err) {
 		game->SendTextMessage(err.what(), 0);
 	}
 }
 
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
-	if (frame % 10 == 0)
-	{
+	if (frame % 10 == 0) {
 		behaviourTree.tick(context);
 
 		// UPDATE_STATES message
@@ -210,7 +216,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
 		broadcastNodeDefinitions();
-	}	else {
+	} else {
 		try {
 			json data = json::parse(sstream);
 
@@ -219,11 +225,10 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				context = BehaviourTree::EvaluationContext(callback);
 				behaviourTree.setRoot(createTreeFromJSON(data).release());
 			}
-			if (messageCode == "ASSIGN_UNITS")
-			{
+			if (messageCode == "ASSIGN_UNITS") {
 				context = BehaviourTree::EvaluationContext(callback);
 			}
-		}	catch (std::logic_error err) {
+		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
 		}
@@ -275,7 +280,7 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 	typedef BehaviourTree::Node::Factory::ParameterValuePlaceholder ParameterValuePlaceholder;
 
 	std::string type = tree.find("type") != tree.end() ? tree["type"] : tree["nodeType"];
-	if(type.size() > 0) // TODO: temporary workaround as node types from BtCreator have uppercase first character
+	if (type.size() > 0) // TODO: temporary workaround as node types from BtCreator have uppercase first character
 		type[0] = std::tolower(type[0]);
 
 	auto factoryIterator = nodeFactories.find(type);
