@@ -139,6 +139,16 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 }
 
 void BtEvaluator::update(int frame) {
+
+	///////////////////////////////////////////////////////////
+	if (messageCount > 0) {
+		sendLuaMessage("TMSGREPORT messages:" + std::to_string(messageCount) + " messageLength:" + std::to_string(minMessageLength) );
+	}
+
+	messageCount = 0;
+	minMessageLength = INT_MAX;
+	///////////////////////////////////////////////////////////
+
 	// tick the tree only once a "game second" == 30 ticks
 	if (frame % 10 == 0) {
 		behaviourTree.tick(context);
@@ -213,6 +223,18 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	std::string messageCode;
 	sstream >> messageCode;
 
+	if (messageCode == "TMSG")
+	{// do the statistics...
+		messageCount++;
+		std::string msg;
+		sstream >> msg;
+		if (minMessageLength > msg.size())
+		{
+			minMessageLength = msg.size();
+		}
+		return; // no need to process
+	}
+
 	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
 		broadcastNodeDefinitions();
@@ -228,6 +250,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 			if (messageCode == "ASSIGN_UNITS") {
 				context = BehaviourTree::EvaluationContext(callback);
 			}
+			
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
