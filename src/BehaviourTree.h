@@ -41,7 +41,7 @@ namespace BT {
       {
       }
 
-      const std::vector<springai::Unit*> units() const { return units_; }
+      const std::vector<springai::Unit*>& units() const { return units_; }
       void setUnits(const std::vector<springai::Unit*>& units) { units_ = units; }
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() { return currentlyFinished; }

@@ -1,10 +1,12 @@
 #include "BehaviourTree.h"
 
+#include <Unit.h>
 #include "Game.h"
 
 #include "SequenceNode.h"
 #include "ConditionNode.h"
 #include "EchoCommand.h"
+#include <algorithm>
 
 using namespace BT;
 using namespace std;
@@ -21,6 +23,10 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 
 	if (node == nullptr) // prevent attempts to tick a non-existant node/branch
 		return btFailure;
+
+	// remove dead units
+	units_.erase(std::remove_if(units_.begin(), units_.end(),
+						   [](springai::Unit* u) { return u->GetHealth() <= 0; }), units_.end());
 
 	EvaluationResult result = node->tick(*this);
 	switch (result)
