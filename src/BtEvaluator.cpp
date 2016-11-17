@@ -235,6 +235,14 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 		return; // no need to process
 	}
 
+	if (messageCode == "TMS1")
+	{// do the statistics...
+		std::string msg;
+		sstream >> msg;
+		sendLuaMessage("TMSGREPORT single message, length: " + std::to_string(msg.size()));
+		return; // no need to process
+	}
+
 	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
 		broadcastNodeDefinitions();
