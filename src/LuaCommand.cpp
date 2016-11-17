@@ -13,7 +13,7 @@ BT::EvaluationResult BT::LuaCommand::execute(const vector<springai::Unit*> units
 	for (auto unit : units) {
 		ids.push_back(unit->GetUnitId());
 	}
-	string result = runLuaScript(json{ { "name", scriptName_ },{ "func", "RUN" }, {"units", ids}, {"parameter", parameter_} });
+	string result = runLuaScript(json{{"func", "RUN"},{"units", ids},{"parameter", parameter_}});
 	if (result == "R") {
 		return btRunning;
 	} else if (result == "S") {
@@ -26,7 +26,7 @@ BT::EvaluationResult BT::LuaCommand::execute(const vector<springai::Unit*> units
 }
 
 void BT::LuaCommand::reset() {
-	runLuaScript(json{ {"name", scriptName_ }, { "func", "RESET"} });
+	runLuaScript(json{{"func", "RESET"}});
 }
 
 unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
@@ -35,5 +35,7 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 }
 
 string BT::LuaCommand::runLuaScript(json params) const {
+	params["name"] = scriptName_;
+	params["id"] = id();
 	return callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
 }
