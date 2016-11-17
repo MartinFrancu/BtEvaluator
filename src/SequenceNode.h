@@ -18,7 +18,7 @@ namespace BT
     virtual std::string name() { return "SequenceNode"; }
     virtual EvaluationResult tick(EvaluationContext& context) override;
     virtual void reset() override;
-
+	
 		class Factory : public GenericNode::Factory {
 		public:
 			Factory() : GenericNode::Factory() {}

@@ -76,7 +76,7 @@ namespace BT {
 
 			virtual std::string name() = 0;
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
-			virtual void reset() {} // reset can quite often do nothing
+			virtual void reset(); // base implementation only resets children
 		protected:
 			void connectTo(Node* node, std::unique_ptr<Node>& link);
 			std::vector<std::unique_ptr<Node>> children_ = std::vector<std::unique_ptr<Node>>();

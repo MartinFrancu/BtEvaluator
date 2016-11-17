@@ -22,7 +22,8 @@ EvaluationResult SequenceNode::tick(EvaluationContext& context)
 
 void SequenceNode::reset()
 {
-  nextChildIndex_ = 0;
+	Node::reset();
+	nextChildIndex_ = 0;
 }
 
 

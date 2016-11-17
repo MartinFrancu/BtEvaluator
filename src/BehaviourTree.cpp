@@ -53,6 +53,12 @@ void BehaviourTree::EvaluationContext::finalize() {
 }
 
 
+void BehaviourTree::Node::reset() {
+	for (auto it = children_.begin(); it != children_.end(); ++it) {
+		(*it)->reset();
+	}
+}
+
 void BehaviourTree::Node::connectTo(Node* node, std::unique_ptr<Node>& link) {
 	if(node != 0)
 		node->parent_ = this;

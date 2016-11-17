@@ -29,7 +29,8 @@ EvaluationResult ConditionNode::tick(EvaluationContext& context)
 
 void ConditionNode::reset()
 {
-  lastResult_ = btUndefined;
+	Node::reset();
+	lastResult_ = btUndefined;
 }
 
 
