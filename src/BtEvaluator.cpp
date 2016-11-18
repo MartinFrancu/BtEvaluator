@@ -137,7 +137,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		game->SendTextMessage(err.what(), 0);
 	}
 
-	sendLuaMessage("INITIALIZED");
+	//sendLuaMessage("INITIALIZED");
 }
 
 void BtEvaluator::update(int frame) {
