@@ -13,9 +13,9 @@ std::vector<BehaviourTree::ParameterDefinition> EchoCommand::Factory::parameters
 {
 	return{
 		ParameterDefinition {
-			"message"
+			"message",
 			"string",
-			"textBox",
+			"editBox",
 			"Echo message"
 		}
 	};
