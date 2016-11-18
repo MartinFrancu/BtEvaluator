@@ -136,6 +136,8 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	} catch (std::logic_error err) {
 		game->SendTextMessage(err.what(), 0);
 	}
+
+	sendLuaMessage("INITIALIZED");
 }
 
 void BtEvaluator::update(int frame) {
@@ -193,12 +195,12 @@ void BtEvaluator::loadTree() {
 
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
 	std::string message = "BETS " + messageType;
-	game->SendTextMessage(message.c_str(), -1);
+	//game->SendTextMessage(message.c_str(), -1);
 	lua->CallUI(message.c_str(), -1);
 }
 void BtEvaluator::sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const {
 	std::string message = "BETS " + messageType + " " + data.dump();
-	game->SendTextMessage(message.c_str(), -1);
+	//game->SendTextMessage(message.c_str(), -1);
 	lua->CallUI(message.c_str(), -1);
 }
 
@@ -310,25 +312,22 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 int BtEvaluator::HandleEvent(int event, const void* data) {
 
 	switch (event) {
-	case EVENT_UPDATE:
-	{ // every frame UPDATE_EVENT is called
-		const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
-		update(updateData->frame);
-		break;
-	}
-	case EVENT_LUA_MESSAGE:
-	{
-		std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
-		game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
-		receiveLuaMessage(message);
+		case EVENT_UPDATE: {
+			// every frame UPDATE_EVENT is called
+			const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
+			update(updateData->frame);
+		} break;
+		case EVENT_LUA_MESSAGE: {
+			std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
+			game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
+			receiveLuaMessage(message);
 
-		auto units = callback->GetSelectedUnits();
-		context.setUnits(units);
-		break;
-	}
-	default:
-		//game->SendTextMessage("Default Event ", 0);
-		break;
+			auto units = callback->GetSelectedUnits();
+			context.setUnits(units);
+		} break;
+		default: {
+			//game->SendTextMessage("Default Event ", 0);
+		} break;
 	}
 
 	// signal: everything went OK
