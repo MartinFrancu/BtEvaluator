@@ -29,6 +29,21 @@ void BT::LuaCommand::reset() {
 	runLuaScript(json{{"func", "RESET"}});
 }
 
+std::vector<BT::BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::parameters() const {
+	return{
+		BehaviourTree::ParameterDefinition{
+			"x",
+			"number",
+			"editBox",
+			"0"
+		}, BehaviourTree::ParameterDefinition{
+			"y",
+			"number",
+			"editBox",
+			"0"
+		} };
+}
+
 unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
 	return unique_ptr<LeafNode>(
 		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), parameters.at("parameter").asString()));

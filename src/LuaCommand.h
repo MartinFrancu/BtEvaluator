@@ -21,11 +21,13 @@ namespace BT {
 			std::string typeName() const override {
 				return "luaCommand";
 			}
+
+			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
 		protected:
-			virtual std::unique_ptr<LeafNode> createNode(
+			std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
-			) const;
+			) const override;
 		};
 	private:
 		std::string runLuaScript(nlohmann::json params) const;
