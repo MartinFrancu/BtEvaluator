@@ -45,8 +45,18 @@ std::vector<BT::BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::par
 }
 
 unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
+	json paramJson;
+
+	for (auto it = parameters.begin(); it != parameters.end(); ++it) {
+		if (it->first == "scriptName") {
+			continue;
+		}
+
+		paramJson[it->first] = it->second.asString();
+	}
+
 	return unique_ptr<LeafNode>(
-		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), parameters.at("parameter").asString()));
+		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), paramJson));
 }
 
 string BT::LuaCommand::runLuaScript(json params) const {

@@ -114,19 +114,23 @@ void BtEvaluator::Initialize() {
 						"children": [
 							{ "type": "luaCommand", "parameters": [ 
 								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "parameter", "value": "100,0" } 
+								{ "name": "x", "value": 100 }, 
+								{ "name": "y", "value": 0 } 
 							] },
 							{ "type": "luaCommand", "parameters": [ 
 								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "parameter", "value": "0,-100" } 
+								{ "name": "x", "value": 0 }, 
+								{ "name": "y", "value": -100 } 
 							] },
 							{ "type": "luaCommand", "parameters": [ 
 								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "parameter", "value": "-100,0" } 
+								{ "name": "x", "value": -100 }, 
+								{ "name": "y", "value": 0 } 
 							] },
 							{ "type": "luaCommand", "parameters": [ 
 								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "parameter", "value": "0,100" } 
+								{ "name": "x", "value": 0 }, 
+								{ "name": "y", "value": 100 } 
 							] }
 						]
 					})"_json;
