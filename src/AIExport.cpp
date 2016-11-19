@@ -43,6 +43,8 @@ EXPORT(int) init(int skirmishAIId, const struct SSkirmishAICallback* innerCallba
 		BtEvaluators[skirmishAIId] = ai;
 		BtEvaluatorCallbacks[skirmishAIId] = clb;
 
+		ai->Initialize();
+
 		ret = 0;
 	} CATCH_CPP_AI_EXCEPTION(ret);
 

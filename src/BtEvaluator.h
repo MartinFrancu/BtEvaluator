@@ -49,6 +49,7 @@ namespace BT {
 
 		~BtEvaluator() {}
 
+		void Initialize();
 		int HandleEvent(int topic, const void* data);
 
 	};

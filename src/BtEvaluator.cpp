@@ -91,7 +91,9 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}
+}
 
+void BtEvaluator::Initialize() {
 	try {
 		/*json tree = R"({
 					  "type": "sequence",
@@ -130,14 +132,14 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 					})"_json;
 
 		behaviourTree.setRoot(createTreeFromJSON(tree).release());
-		broadcastNodeDefinitions();
+		//broadcastNodeDefinitions();
 
 		game->SendTextMessage("Node definitions broadcast.", 0);
 	} catch (std::logic_error err) {
 		game->SendTextMessage(err.what(), 0);
 	}
 
-	//sendLuaMessage("INITIALIZED");
+	sendLuaMessage("INITIALIZED");
 }
 
 void BtEvaluator::update(int frame) {
@@ -218,6 +220,10 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
 		broadcastNodeDefinitions();
+	} else if(messageCode == "REINITIALIZE") {
+		Initialize();
+	} else if (messageCode == "ASSIGN_UNITS") {
+		context = BehaviourTree::EvaluationContext(callback);
 	} else {
 		try {
 			json data = json::parse(sstream);
@@ -226,9 +232,6 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 			if (messageCode == "CREATE_TREE") {
 				context = BehaviourTree::EvaluationContext(callback);
 				behaviourTree.setRoot(createTreeFromJSON(data).release());
-			}
-			if (messageCode == "ASSIGN_UNITS") {
-				context = BehaviourTree::EvaluationContext(callback);
 			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
