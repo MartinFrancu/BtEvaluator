@@ -31,6 +31,12 @@ void BT::LuaCommand::reset() {
 
 std::vector<BT::BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::parameters() const {
 	return{
+        BehaviourTree::ParameterDefinition{
+			"scriptName",
+			"string",
+			"editBox",
+			"name.lua"
+		},
 		BehaviourTree::ParameterDefinition{
 			"x",
 			"number",
@@ -54,6 +60,18 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 
 		paramJson[it->first] = it->second.asString();
 	}
+    
+    int x, y;
+
+    auto it = parameters.find("x");
+	if (it != parameters.end())
+		x = it->second.asInteger();
+    paramJson[it->first] = it->second.asInteger();
+
+    it = parameters.find("y");
+	if (it != parameters.end())
+		y = it->second.asInteger();
+    paramJson[it->first] = it->second.asInteger();
 
 	return unique_ptr<LeafNode>(
 		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), paramJson));
