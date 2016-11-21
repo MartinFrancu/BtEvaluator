@@ -35,7 +35,7 @@ std::vector<BT::BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::par
 			"scriptName",
 			"string",
 			"editBox",
-			"name.lua"
+			"move.lua"
 		},
 		BehaviourTree::ParameterDefinition{
 			"x",
