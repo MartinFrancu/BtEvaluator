@@ -110,29 +110,8 @@ void BtEvaluator::Initialize() {
 					})"_json;*/
 
 		json tree = R"({
-					  "type": "sequence",
-						"children": [
-							{ "type": "luaCommand", "parameters": [ 
-								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "x", "value": 100 }, 
-								{ "name": "y", "value": 0 } 
-							] },
-							{ "type": "luaCommand", "parameters": [ 
-								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "x", "value": 0 }, 
-								{ "name": "y", "value": -100 } 
-							] },
-							{ "type": "luaCommand", "parameters": [ 
-								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "x", "value": -100 }, 
-								{ "name": "y", "value": 0 } 
-							] },
-							{ "type": "luaCommand", "parameters": [ 
-								{ "name": "scriptName", "value": "move.lua" },
-								{ "name": "x", "value": 0 }, 
-								{ "name": "y", "value": 100 } 
-							] }
-						]
+					  "type": "wait",
+						"parameters": [ { "name": "time", "value": 30 } ]
 					})"_json;
 
 		context = BehaviourTree::EvaluationContext(callback);
