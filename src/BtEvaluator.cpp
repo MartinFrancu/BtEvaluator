@@ -212,7 +212,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 			// messages with data
 			if (messageCode == "CREATE_TREE") {
 				context = BehaviourTree::EvaluationContext(callback);
-				behaviourTree.setRoot(createTreeFromJSON(data).release());
+				behaviourTree.setRoot(createTreeFromJSON(data["root"]).release());
 			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
