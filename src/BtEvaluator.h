@@ -32,7 +32,7 @@ namespace BT {
 
 		std::map<std::string, std::unique_ptr<const BehaviourTree::Node::Factory>> nodeFactories;
 
-
+		BehaviourTree::EvaluationContext* reportingContext;
 		TreeMap treeMap;
 
 		//BehaviourTree behaviourTree;

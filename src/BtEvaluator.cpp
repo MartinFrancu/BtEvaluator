@@ -76,8 +76,8 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	lua(callback->GetLua()),
 	skirmishAIId(callback != nullptr ? callback->GetSkirmishAIId() : -1),
 	nodeIdCounter(0),
-	//behaviourTree(),
-	//context(callback),
+	treeMap(),
+	reportingContext(nullptr),
 	nodeFactories() {
 
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
@@ -96,6 +96,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 
 void BtEvaluator::Initialize() {
 	treeMap.clear();
+	reportingContext = nullptr;
 
 	sendLuaMessage("INITIALIZED");
 }
@@ -107,13 +108,15 @@ void BtEvaluator::update(int frame) {
 			auto& behaviourTree(it->second.first);
 			auto& context(it->second.second);
 			behaviourTree.tick(context);
+		}
 
+		if(reportingContext) {
 			// UPDATE_STATES message
 			json update;
-			for (auto& finished : context.finished()) {
+			for (auto& finished : reportingContext->finished()) {
 				update[finished.first->id()] = nameOfEvaluationResult(finished.second);
 			}
-			for (auto& running : context.running()) {
+			for (auto& running : reportingContext->running()) {
 				update[running->id()] = nameOfEvaluationResult(btRunning);
 			}
 			sendLuaMessage("UPDATE_STATES", update);
@@ -197,6 +200,14 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				auto& treeContextPair(treeMap.at(data["instanceId"].get<string>()));
 				treeContextPair.second = BehaviourTree::EvaluationContext(callback);
 				treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
+			} else if (messageCode == "REPORT_TREE") {
+				auto instanceId = data["instanceId"].get<string>();
+				auto treeIterator = treeMap.find(instanceId);
+				if (treeIterator == treeMap.end()) {
+					reportingContext = nullptr;
+					return; // TODO: return RESPONSE
+				}
+				reportingContext = &treeIterator->second.second;
 			} else if (messageCode == "ASSIGN_UNITS") {
 				treeMap.at(data["instanceId"].get<string>()).second = BehaviourTree::EvaluationContext(callback);
 			}
