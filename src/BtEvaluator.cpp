@@ -95,31 +95,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 }
 
 void BtEvaluator::Initialize() {
-	try {
-		/*json tree = R"({
-					  "type": "sequence",
-						"children": [
-							{ "type": "groupReporter", "parameters": [ { "name": "reportCount", "value": 2 } ] },
-							{ "type": "wait", "parameters": [ { "name": "time", "value": 10 } ] },
-							{ "type": "echo", "parameters": [ { "name": "message", "value": "My custom message" } ] },
-							{ "type": "condition", "children": [
-								{ "type": "flipSensor" },
-								{ "type": "wait", "parameters": [ { "name": "time", "value": 5 } ] },
-								{ "type": "wait", "parameters": [ { "name": "time", "value": 2 } ] }
-							] }
-						]
-					})"_json;*/
-
-		json tree = R"({
-					  "type": "wait",
-						"parameters": [ { "name": "time", "value": 30 } ]
-					})"_json;
-
-		treeMap.insert(make_pair("CHANGE_ME", make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback))));
-		treeMap.at("CHANGE_ME").first.setRoot(createTreeFromJSON(tree).release());
-	} catch (std::logic_error err) {
-		game->SendTextMessage(err.what(), 0);
-	}
+	treeMap.clear();
 
 	sendLuaMessage("INITIALIZED");
 }
