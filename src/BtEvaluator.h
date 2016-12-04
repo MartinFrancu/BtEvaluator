@@ -20,6 +20,7 @@ namespace BT {
 	 */
 	class BtEvaluator {
 		typedef std::map<std::string, BT::SpringCommand> CommandMap;
+		typedef std::map<std::string, std::pair<BehaviourTree, BehaviourTree::EvaluationContext>> TreeMap;
 	private:
 		springai::OOAICallback* callback;
 		springai::Game* game;
@@ -31,8 +32,11 @@ namespace BT {
 
 		std::map<std::string, std::unique_ptr<const BehaviourTree::Node::Factory>> nodeFactories;
 
-		BehaviourTree behaviourTree;
-		BehaviourTree::EvaluationContext context;
+
+		TreeMap treeMap;
+
+		//BehaviourTree behaviourTree;
+		//BehaviourTree::EvaluationContext context;
 
 		void update(int frame);
 

@@ -31,6 +31,7 @@
 #include <json.hpp>
 #include "LuaCommand.h"
 using json = nlohmann::json;
+using namespace std;
 
 // Every event has its own event struct defined on AISEvents.h, which is passed as const void* data to HandleEvenet. 
 /*
@@ -75,8 +76,8 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	lua(callback->GetLua()),
 	skirmishAIId(callback != nullptr ? callback->GetSkirmishAIId() : -1),
 	nodeIdCounter(0),
-	behaviourTree(),
-	context(callback),
+	//behaviourTree(),
+	//context(callback),
 	nodeFactories() {
 
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
@@ -114,8 +115,8 @@ void BtEvaluator::Initialize() {
 						"parameters": [ { "name": "time", "value": 30 } ]
 					})"_json;
 
-		context = BehaviourTree::EvaluationContext(callback);
-		behaviourTree.setRoot(createTreeFromJSON(tree).release());
+		treeMap.insert(make_pair("CHANGE_ME", make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback))));
+		treeMap.at("CHANGE_ME").first.setRoot(createTreeFromJSON(tree).release());
 	} catch (std::logic_error err) {
 		game->SendTextMessage(err.what(), 0);
 	}
@@ -126,17 +127,21 @@ void BtEvaluator::Initialize() {
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
 	if (frame % 10 == 0) {
-		behaviourTree.tick(context);
+		for (auto it(treeMap.begin()); it != treeMap.end(); ++it) {
+			auto& behaviourTree(it->second.first);
+			auto& context(it->second.second);
+			behaviourTree.tick(context);
 
-		// UPDATE_STATES message
-		json update;
-		for (auto& finished : context.finished()) {
-			update[finished.first->id()] = nameOfEvaluationResult(finished.second);
+			// UPDATE_STATES message
+			json update;
+			for (auto& finished : context.finished()) {
+				update[finished.first->id()] = nameOfEvaluationResult(finished.second);
+			}
+			for (auto& running : context.running()) {
+				update[running->id()] = nameOfEvaluationResult(btRunning);
+			}
+			sendLuaMessage("UPDATE_STATES", update);
 		}
-		for (auto& running : context.running()) {
-			update[running->id()] = nameOfEvaluationResult(btRunning);
-		}
-		sendLuaMessage("UPDATE_STATES", update);
 	}
 }
 
@@ -203,16 +208,21 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 		broadcastNodeDefinitions();
 	} else if(messageCode == "REINITIALIZE") {
 		Initialize();
-	} else if (messageCode == "ASSIGN_UNITS") {
-		context = BehaviourTree::EvaluationContext(callback);
 	} else {
 		try {
 			json data = json::parse(sstream);
 
 			// messages with data
 			if (messageCode == "CREATE_TREE") {
-				context = BehaviourTree::EvaluationContext(callback);
-				behaviourTree.setRoot(createTreeFromJSON(data["root"]).release());
+				auto instanceId = data["instanceId"].get<string>();
+				if (treeMap.find(instanceId) == treeMap.end()) {
+					treeMap.emplace(instanceId, make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback)));
+				}
+				auto& treeContextPair(treeMap.at(data["instanceId"].get<string>()));
+				treeContextPair.second = BehaviourTree::EvaluationContext(callback);
+				treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
+			} else if (messageCode == "ASSIGN_UNITS") {
+				treeMap.at(data["instanceId"].get<string>()).second = BehaviourTree::EvaluationContext(callback);
 			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
@@ -306,8 +316,8 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 			game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
 			receiveLuaMessage(message);
 
-			auto units = callback->GetSelectedUnits();
-			context.setUnits(units);
+			//auto units = callback->GetSelectedUnits();
+			//context.setUnits(units);
 		} break;
 		default: {
 			//game->SendTextMessage("Default Event ", 0);
