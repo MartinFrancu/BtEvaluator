@@ -15,7 +15,8 @@ EvaluationResult FlipSensor::execute(const std::vector<springai::Unit*> units) {
 
 
 std::unique_ptr<BehaviourTree::LeafNode> FlipSensor::Factory::createNode(
-	const std::string& id,
+	const std::string& id, 
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
 	return std::unique_ptr<BehaviourTree::LeafNode>(

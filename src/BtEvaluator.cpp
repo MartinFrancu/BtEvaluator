@@ -199,7 +199,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				}
 				auto& treeContextPair(treeMap.at(data["instanceId"].get<string>()));
 				treeContextPair.second = BehaviourTree::EvaluationContext(callback);
-				treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
+				treeContextPair.first.setRoot(createTreeFromJSON(data["root"], instanceId).release());
 			} else if (messageCode == "REPORT_TREE") {
 				auto instanceId = data["instanceId"].get<string>();
 				auto treeIterator = treeMap.find(instanceId);
@@ -259,7 +259,7 @@ void BtEvaluator::broadcastNodeDefinitions() const {
 	sendLuaMessage("NODE_DEFINITIONS", definitions);
 }
 
-std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohmann::json& tree) {
+std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohmann::json& tree, const std::string& treeInstanceId) {
 	typedef BehaviourTree::Node::Factory::ParameterValuePlaceholder ParameterValuePlaceholder;
 
 	std::string type = tree.find("type") != tree.end() ? tree["type"] : tree["nodeType"];
@@ -283,11 +283,11 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 	std::vector<std::unique_ptr<BehaviourTree::Node>> children;
 	if (tree.find("children") != tree.end()) {
 		for (auto& child : tree["children"]) {
-			children.push_back(createTreeFromJSON(child));
+			children.push_back(createTreeFromJSON(child, treeInstanceId));
 		}
 	}
 
-	return factory->createNode(tree.find("id") != tree.end() ? tree["id"].get<std::string>() : std::to_string(++nodeIdCounter), parameters, children);
+	return factory->createNode(tree.find("id") != tree.end() ? tree["id"].get<std::string>() : std::to_string(++nodeIdCounter), treeInstanceId, parameters, children);
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {

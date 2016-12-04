@@ -32,7 +32,7 @@ namespace BT
 			virtual ChildDefinition secondChild() const { return ChildDefinition(); }
 			virtual ChildDefinition thirdChild() const { return ChildDefinition(); }
 			virtual std::unique_ptr<TernaryNode> createNode(
-				const std::string& id,
+				const std::string& id, const std::string& treeInstanceId,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 				) const;
 		};

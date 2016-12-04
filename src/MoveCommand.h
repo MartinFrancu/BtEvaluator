@@ -33,7 +33,8 @@ namespace BT {
 			virtual std::string typeName() const { return "move"; }
 		protected:
 			virtual std::unique_ptr<LeafNode> createNode(
-				const std::string& id,
+				const std::string& id, 
+				const std::string& treeInstanceId,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 				) const	{
 				return std::unique_ptr<BehaviourTree::LeafNode>(

@@ -24,6 +24,7 @@ void WaitNode::reset()
 
 std::unique_ptr<BehaviourTree::LeafNode> WaitNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
 	std::size_t time = 5;

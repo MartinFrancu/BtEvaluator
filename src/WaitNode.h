@@ -24,6 +24,7 @@ namespace BT {
 		protected:
 			virtual std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
+				const std::string& treeInstanceId,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 				) const;
 		};

@@ -25,7 +25,8 @@ namespace BT
 			virtual std::string typeName() const { return "sequence"; }
 		protected:
 			virtual std::unique_ptr<GenericNode> createNode(
-				const std::string& id,
+				const std::string& id, 
+				const std::string& treeInstanceId,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 				) const;
 		};

@@ -36,6 +36,7 @@ void ConditionNode::reset()
 
 std::unique_ptr<BehaviourTree::TernaryNode> ConditionNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
 	return std::unique_ptr<BehaviourTree::TernaryNode>(

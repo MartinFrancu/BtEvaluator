@@ -26,25 +26,27 @@ bool BehaviourTree::Node::Factory::ParameterValuePlaceholder::asBoolean(bool def
 
 std::unique_ptr<BehaviourTree::Node> BehaviourTree::LeafNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters,
 	std::vector<std::unique_ptr<Node>>& children
 	) const {
 	if (children.size() > 0)
 		throw "Invalid number of children.";
 
-	auto node = createNode(id, parameters);
+	auto node = createNode(id, treeId, parameters);
 	return std::move(node);
 }
 
 std::unique_ptr<BehaviourTree::Node> BehaviourTree::UnaryNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters,
 	std::vector<std::unique_ptr<Node>>& children
 	) const {
 	if (children.size() > 1)
 		throw "Invalid number of children.";
 
-	auto node = createNode(id, parameters);
+	auto node = createNode(id, treeId, parameters);
 	node->setChild(
 		children.size() <= 0 ? 0 : children[0].release()
 	);
@@ -53,13 +55,14 @@ std::unique_ptr<BehaviourTree::Node> BehaviourTree::UnaryNode::Factory::createNo
 
 std::unique_ptr<BehaviourTree::Node> BehaviourTree::BinaryNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters,
 	std::vector<std::unique_ptr<Node>>& children
 	) const {
 	if (children.size() > 2)
 		throw "Invalid number of children.";
 
-	auto node = createNode(id, parameters);
+	auto node = createNode(id, treeId, parameters);
 	node->setChildren(
 		children.size() <= 0 ? 0 : children[0].release(),
 		children.size() <= 1 ? 0 : children[1].release()
@@ -69,13 +72,14 @@ std::unique_ptr<BehaviourTree::Node> BehaviourTree::BinaryNode::Factory::createN
 
 std::unique_ptr<BehaviourTree::Node> BehaviourTree::TernaryNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters,
 	std::vector<std::unique_ptr<Node>>& children
 	) const {
 	if (children.size() > 3)
 		throw "Invalid number of children.";
 
-	auto node = createNode(id, parameters);
+	auto node = createNode(id, treeId, parameters);
 	node->setChildren(
 		children.size() <= 0 ? 0 : children[0].release(),
 		children.size() <= 1 ? 0 : children[1].release(),
@@ -86,10 +90,11 @@ std::unique_ptr<BehaviourTree::Node> BehaviourTree::TernaryNode::Factory::create
 
 std::unique_ptr<BehaviourTree::Node> BehaviourTree::GenericNode::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters,
 	std::vector<std::unique_ptr<Node>>& children
 	) const {
-	auto node = createNode(id, parameters);
+	auto node = createNode(id, treeId, parameters);
 	for (auto& child : children)
 		node->add(child.release());
 	return std::move(node);

@@ -23,6 +23,7 @@ std::vector<BehaviourTree::ParameterDefinition> EchoCommand::Factory::parameters
 
 std::unique_ptr<BehaviourTree::LeafNode> EchoCommand::Factory::createNode(
 	const std::string& id,
+	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
 	std::string message = "Echo message";

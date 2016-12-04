@@ -47,7 +47,7 @@ namespace BT {
 		void receiveLuaMessage(const std::string&);
 
 		void broadcastNodeDefinitions() const;
-		std::unique_ptr<BehaviourTree::Node> createTreeFromJSON(const nlohmann::json& tree);
+		std::unique_ptr<BehaviourTree::Node> createTreeFromJSON(const nlohmann::json& tree, const std::string& treeInstanceId);
 	public:
 		explicit BtEvaluator(springai::OOAICallback* callback);
 
