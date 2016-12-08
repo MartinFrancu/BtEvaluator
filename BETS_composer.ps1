@@ -10,16 +10,34 @@ temporary folder structure which mimicks the nota structure and copy files of
 BtEvaluator to corresponding places and then checkout the BETS repositor,
 again to corresponding place.#>
 
+"Date: " + (Get-Date -format "yyyy-MM-dd
+") | Out-File "BETS_composer.log" -Encoding ASCII
+
+function Print {
+  process {
+    $input | % {
+      Write-Host $_
+      $_ | Out-File "BETS_composer.log" -append -Encoding UTF8 | Out-Null
+    }
+  }
+}
+function Log {
+  process {
+    $input | Out-File "BETS_composer.log" -append -Encoding UTF8 | Out-Null
+  }
+}
+
 $betsArchiveName = Get-Date -format "BETS_yyyy-MM-dd.\zip"
 $baseLocation = Get-Location
 
-Write-Host $betsArchiveName
+"Composing: " + $betsArchiveName | Print
+"" | Print
 
 Remove-Item $betsArchiveName -force -ErrorAction SilentlyContinue
 Remove-Item .\tmp_BETS\ -recurse -force -ErrorAction SilentlyContinue
 
 if($springData -eq $NULL -or $springSource -eq $NULL) {
-  Write-Host "-- Locating SpringData and Spring source"
+  "-- Locating SpringData and Spring source" | Print
   [xml]$propsDocument = Get-Content -Path $springPathsProps
   $pathsNode = $propsDocument.Project.PropertyGroup | Where { $_.Label -eq "UserMacros" }
   
@@ -30,64 +48,78 @@ if($springData -eq $NULL -or $springSource -eq $NULL) {
     $springSource = $pathsNode.SPRING_SOURCE_DIR
   }
 }
-Write-Host "SpringData path: " $springData
-Write-Host "Spring source path: " $springSource
+"SpringData path: " + $springData | Print
+"Spring source path: " + $springSource | Print
+
+"" | Print
 
 
 
-
-Write-Host "-- Compiling BtEvaluator"
+"-- Compiling BtEvaluator" | Print
 
 Set-Location $springSource\build
 
-mingw32-make -j4 BtEvaluator
+mingw32-make -j4 BtEvaluator 2>&1 | Log
 $version = cat .\AI\Skirmish\BtEvaluator\VERSION
 
 Set-Location $baseLocation
 
+"" | Print
 
 
 
+"-- Creating a copy of BtEvaluator" | Print
 
-Write-Host "-- Creating a copy of BtEvaluator"
+New-Item .\tmp_BETS\SpringData\LuaUI\Widgets -type directory | Log
+New-Item .\tmp_BETS\SpringData\AI\Skirmish\BtEvaluator\$version -type directory | Log
+Copy-Item $springSource\build\AI\Skirmish\BtEvaluator\SkirmishAI.dll .\tmp_BETS\SpringData\AI\Skirmish\BtEvaluator\$version | Log
+Copy-Item $springSource\AI\Skirmish\BtEvaluator\data\*.lua .\tmp_BETS\SpringData\AI\Skirmish\BtEvaluator\$version | Log
 
-New-Item .\tmp_BETS\SpringData\LuaUI\Widgets -type directory
-New-Item .\tmp_BETS\SpringData\AI\Skirmish\BtEvaluator\$version -type directory
-Copy-Item $springSource\build\AI\Skirmish\BtEvaluator\SkirmishAI.dll .\tmp_BETS\SpringData\AI\Skirmish\BtEvaluator\$version
-Copy-Item $springSource\AI\Skirmish\BtEvaluator\data\*.lua .\tmp_BETS\SpringData\AI\Skirmish\BtEvaluator\$version
-
-
-
+"" | Print
 
 
-Write-Host "-- Checking out the BETS repository:"
+
+"-- Checking out the BETS repository:" | Print
 
 Set-Location .\tmp_BETS\SpringData\LuaUI
 
-git clone --recursive https://github.com/MartinFrancu/BETS.git Widgets\
-Remove-Item .\Widgets\.gitignore -force
+git clone --recursive https://github.com/MartinFrancu/BETS.git Widgets\ 2>&1 | Log
+Remove-Item .\Widgets\.gitignore -force | Log
 
 Set-Location $baseLocation
 
+"" | Print
 
 
-Write-Host "-- (temporary) Adding dlls from MinGW"
+<# Excluding DLLs as they are no longer necessary
+"-- (temporary) Adding dlls from MinGW" | Print
 $engineVersion = (Get-ChildItem $springData\engines | Sort-Object -Property @{Expression={[double]$_.Name}; Ascending = $False} | Select -first 1).Name
 $mingwPath = Split-Path -Path (Get-Command mingw32-make).Definition
-Write-Host "MinGW path: " $mingwPath
-New-Item .\tmp_BETS\SpringData\engines\$engineVersion -type directory
-Copy-Item (Join-Path -Path $mingwPath -ChildPath *.dll) .\tmp_BETS\SpringData\engines\$engineVersion
+"MinGW path: " + $mingwPath | Print
+New-Item .\tmp_BETS\SpringData\engines\$engineVersion -type directory | Log
+Copy-Item (Join-Path -Path $mingwPath -ChildPath *.dll) .\tmp_BETS\SpringData\engines\$engineVersion | Log
+ 
+"" | Print
+ #>
 
 
 
-Write-Host "-- Packing into archive"
+"-- Adding README:" | Print
+
+Copy-Item .\BETS_readme.md .\tmp_BETS\README.md | Log
+
+"" | Print
+
+
+
+"-- Packing into archive" | Print
 
 if( Get-Command jar -ErrorAction SilentlyContinue ) {
   Set-Location .\tmp_BETS
-  jar -cMf ..\$betsArchiveName .\SpringData\*
+  jar -cMf ..\$betsArchiveName .\* 2>&1 | Log
 } else { if( Get-Command zip -ErrorAction SilentlyContinue ) {
   Set-Location .\tmp_BETS
-  zip -r ..\$betsArchiveName .\SpringData\*
+  zip -r ..\$betsArchiveName .\* 2>&1 | Log
 } else {
   Add-Type -A System.IO.Compression.FileSystem
   [IO.Compression.ZipFile]::CreateFromDirectory('tmp_BETS', $betsArchiveName)
@@ -95,10 +127,10 @@ if( Get-Command jar -ErrorAction SilentlyContinue ) {
 
 Set-Location $baseLocation
 
+"" | Print
 
 
 
+"-- Cleaning up" | Print
 
-Write-Host "-- Cleaning up"
-
-Remove-Item .\tmp_BETS\ -recurse -force
+Remove-Item .\tmp_BETS\ -recurse -force | Log
