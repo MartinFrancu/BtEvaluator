@@ -33,41 +33,43 @@ namespace BT {
 	public:
 		class Node;
 
-    class EvaluationContext {
-    public:
-      springai::OOAICallback* callback_;
-      EvaluationContext(springai::OOAICallback* callback)
-        : callback_(callback), units_(callback->GetSelectedUnits())
-      {
-      }
+		class EvaluationContext {
+		public:
+			springai::OOAICallback* callback_;
+			EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId)
+				: callback_(callback), units_(callback->GetSelectedUnits()), instanceId_(instanceId) {}
 
-      const std::vector<springai::Unit*>& units() const { return units_; }
-      void setUnits(const std::vector<springai::Unit*>& units) { units_ = units; }
+			const std::vector<springai::Unit*>& units() const { return units_; }
+			void setUnits(const std::vector<springai::Unit*>& units) { units_ = units; }
 
-			const std::vector<std::pair<Node*, EvaluationResult>>& finished() { return currentlyFinished; }
-			const std::vector<Node*>& running() { return currentlyRunning; }
+			const std::vector<std::pair<Node*, EvaluationResult>>& finished() const { return currentlyFinished; }
+			const std::vector<Node*>& running() const { return currentlyRunning; }
 
-      void initialize();
-      EvaluationResult tickNode(Node* node);
-      void finalize();
-    private:
-      std::vector<springai::Unit*> units_;
-      std::vector<std::pair<Node*, EvaluationResult>> currentlyFinished;
+			const std::string& treeInstanceId() const { return instanceId_; }
+
+			void initialize();
+			EvaluationResult tickNode(Node* node);
+			void finalize();
+		private:
+			std::vector<springai::Unit*> units_;
+			std::vector<std::pair<Node*, EvaluationResult>> currentlyFinished;
 			std::vector<Node*> currentlyRunning;
 			std::vector<Node*> previouslyRunning;
-    };
+
+			std::string instanceId_;
+		};
 
 		struct ParameterDefinition {
 			std::string name;
 			std::string variableType;
 			std::string componentType;
 			std::string defaultValue;
-    };
-		struct ChildDefinition { };
+		};
 
+		struct ChildDefinition {};
 		class Node {
 		public:
-      class Factory;
+			class Factory;
 
 			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr) {}
 			virtual ~Node() {}

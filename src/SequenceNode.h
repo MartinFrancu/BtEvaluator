@@ -15,20 +15,20 @@ namespace BT
     { }
     virtual ~SequenceNode() {}
 
-    virtual std::string name() { return "SequenceNode"; }
-    virtual EvaluationResult tick(EvaluationContext& context) override;
-    virtual void reset() override;
+	std::string name() override { return "SequenceNode"; }
+    EvaluationResult tick(EvaluationContext& context) override;
+    void reset() override;
 	
 		class Factory : public GenericNode::Factory {
 		public:
 			Factory() : GenericNode::Factory() {}
-			virtual std::string typeName() const { return "sequence"; }
+
+			std::string typeName() const override { return "sequence"; }
 		protected:
-			virtual std::unique_ptr<GenericNode> createNode(
+			std::unique_ptr<GenericNode> createNode(
 				const std::string& id, 
-				const std::string& treeInstanceId,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
-				) const;
+				) const override;
 		};
 	private:
     std::size_t nextChildIndex_;

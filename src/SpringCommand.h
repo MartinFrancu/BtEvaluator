@@ -9,13 +9,18 @@
 namespace BT {
 
 	class SpringCommand : public BehaviourTree::LeafNode {
-    typedef BehaviourTree::EvaluationContext EvaluationContext;
-  protected:
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
+	private:
+		std::string treeInstanceId_;
+	protected:
 		springai::OOAICallback* callback;
+		const std::string& treeInstanceId() const { return treeInstanceId_; }
 	public:
-    SpringCommand(const std::string& id, springai::OOAICallback* callback) : LeafNode(id), callback(callback) {}
+		SpringCommand(const std::string& id, springai::OOAICallback* callback) : LeafNode(id), callback(callback) {}
 
-    virtual EvaluationResult tick(EvaluationContext& context) override { return execute(context.units()); }
+		EvaluationResult tick(EvaluationContext& context) override { 
+			treeInstanceId_ = context.treeInstanceId();
+			return execute(context.units()); }
 
 		virtual EvaluationResult execute(const std::vector<springai::Unit*> units) = 0;
 

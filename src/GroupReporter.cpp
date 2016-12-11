@@ -29,7 +29,6 @@ EvaluationResult GroupReporter::execute(const std::vector<springai::Unit*> units
 
 std::unique_ptr<BehaviourTree::LeafNode> GroupReporter::Factory::createNode(
 	const std::string& id,
-	const std::string& treeId,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
 	int reportCount = 5;
