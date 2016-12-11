@@ -212,10 +212,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				treeMap.at(instanceId).second = BehaviourTree::EvaluationContext(callback, instanceId);
 			}
 			else if (messageCode == "REMOVE_TREE") {
-				// Now I should remove tree
-				TreeMap::iterator iterator = treeMap.find(data["instanceId"].get<string>());
-				treeMap.erase(iterator);
-				
+				treeMap.erase(data["instanceId"].get<string>());
 			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
