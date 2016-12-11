@@ -17,13 +17,13 @@ namespace BT {
 		class Factory : public SpringCommand::Factory {
 		public:
 			Factory(springai::OOAICallback* callback) : SpringCommand::Factory(callback) {}
-			virtual std::string typeName() const { return "groupReporter"; }
+
+			std::string typeName() const override { return "groupReporter"; }
 		protected:
-			virtual std::unique_ptr<LeafNode> createNode(
+			std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
-				const std::string& treeInstanceId,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
-				) const;
+				) const override;
 		};
 	};
 }

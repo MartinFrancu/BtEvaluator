@@ -18,7 +18,6 @@ namespace BT {
 
 		virtual std::unique_ptr<Node> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters,
 			std::vector<std::unique_ptr<Node>>& children
 			) const = 0;
@@ -36,7 +35,6 @@ namespace BT {
 	public:
 		virtual std::unique_ptr<Node> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters,
 			std::vector<std::unique_ptr<Node>>& children
 			) const;
@@ -46,7 +44,6 @@ namespace BT {
 	protected:
 		virtual std::unique_ptr<LeafNode> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const = 0;
 	};
@@ -54,7 +51,6 @@ namespace BT {
 	public:
 		virtual std::unique_ptr<Node> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters,
 			std::vector<std::unique_ptr<Node>>& children
 			) const;
@@ -65,7 +61,6 @@ namespace BT {
 		virtual ChildDefinition child() const = 0;
 		virtual std::unique_ptr<UnaryNode> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const = 0;
 	};
@@ -73,7 +68,6 @@ namespace BT {
 	public:
 		virtual std::unique_ptr<Node> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters,
 			std::vector<std::unique_ptr<Node>>& children
 			) const;
@@ -85,7 +79,6 @@ namespace BT {
 		virtual ChildDefinition rightChild() const = 0;
 		virtual std::unique_ptr<BinaryNode> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const = 0;
 	};
@@ -93,7 +86,6 @@ namespace BT {
 	public:
 		virtual std::unique_ptr<Node> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters,
 			std::vector<std::unique_ptr<Node>>& children
 			) const;
@@ -106,7 +98,6 @@ namespace BT {
 		virtual ChildDefinition thirdChild() const = 0;
 		virtual std::unique_ptr<TernaryNode> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const = 0;
 	};
@@ -114,7 +105,6 @@ namespace BT {
 	public:
 		virtual std::unique_ptr<Node> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters,
 			std::vector<std::unique_ptr<Node>>& children
 			) const;
@@ -124,7 +114,6 @@ namespace BT {
 	protected:
 		virtual std::unique_ptr<GenericNode> createNode(
 			const std::string& id,
-			const std::string& treeId,
 			const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const = 0;
 	};

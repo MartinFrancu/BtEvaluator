@@ -13,7 +13,7 @@ BT::EvaluationResult BT::LuaCommand::execute(const vector<springai::Unit*> units
 	for (auto unit : units) {
 		ids.push_back(unit->GetUnitId());
 	}
-	string result = runLuaScript(json{{"func", "RUN"},{"units", ids},{"parameter", parameter_}});
+	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "parameter", parameter_ } });
 	if (result == "R") {
 		return btRunning;
 	} else if (result == "S") {
@@ -50,7 +50,7 @@ std::vector<BT::BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::par
 		} };
 }
 
-unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const string& treeInstId, const map<string, ParameterValuePlaceholder>& parameters) const {
+unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
 	json paramJson;
 
 	for (auto it = parameters.begin(); it != parameters.end(); ++it) {
@@ -74,12 +74,12 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
     paramJson[it->first] = it->second.asInteger();
 
 	return unique_ptr<LeafNode>(
-		new LuaCommand(id, treeInstId, callback_, parameters.at("scriptName").asString(), paramJson));
+		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), paramJson));
 }
 
 string BT::LuaCommand::runLuaScript(json params) const {
 	params["name"] = scriptName_;
 	params["id"] = id();
-	params["treeId"] = treeId();
+	params["treeId"] = treeInstanceId();
 	return callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
 }
