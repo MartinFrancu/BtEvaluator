@@ -211,6 +211,12 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 			} else if (messageCode == "ASSIGN_UNITS") {
 				treeMap.at(data["instanceId"].get<string>()).second = BehaviourTree::EvaluationContext(callback);
 			}
+			else if (messageCode == "REMOVE_TREE") {
+				// Now I should remove tree
+				TreeMap::iterator iterator = treeMap.find(data["instanceId"].get<string>());
+				treeMap.erase(iterator);
+				
+			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
