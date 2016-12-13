@@ -12,10 +12,71 @@ using namespace BT;
 using namespace std;
 
 
+BehaviourTree::EvaluationContext::EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId)
+	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(0) {
+	currentUnits_ = &roleUnits_[0];
+}
+
+bool BehaviourTree::EvaluationContext::removeUnits(const std::vector<springai::Unit*>& units) {
+	bool isAltered = false;
+	auto shouldBeRemoved = [&](springai::Unit* u) {
+		bool result = std::find_if(units.begin(), units.end(), [&](springai::Unit* o) { return u->GetUnitId() == o->GetUnitId(); }) != units.end();
+		isAltered |= result;
+		return result;
+	};
+	allUnits_.erase(std::remove_if(allUnits_.begin(), allUnits_.end(), shouldBeRemoved), allUnits_.end());
+	for (auto& role : roleUnits_) {
+		role.erase(std::remove_if(role.begin(), role.end(), shouldBeRemoved), role.end());
+	}
+
+	return isAltered;
+}
+void BehaviourTree::EvaluationContext::setUnits(int roleId, const std::vector<springai::Unit*>& units) {
+	if (roleId >= roleUnits_.size()) {
+		roleUnits_.resize(roleId + 1);
+	}
+	auto& role = roleUnits_[roleId];
+	removeUnits(role);
+	role = units;
+	allUnits_.insert(allUnits_.end(), units.begin(), units.end());
+}
+void BehaviourTree::EvaluationContext::setActiveRole(int roleId) {
+	if (roleId == ALL_ROLES) {
+		currentUnits_ = &allUnits_;
+	}	else {
+		if (roleId >= roleUnits_.size()) {
+			roleUnits_.resize(roleId + 1);
+		}
+		currentUnits_ = &roleUnits_[roleId];
+	}
+}
+void BehaviourTree::EvaluationContext::clear() {
+	allUnits_.clear();
+	roleUnits_.clear();
+	reset();
+}
+void BehaviourTree::EvaluationContext::reset() {
+	for (auto currentIt = currentlyRunning.begin(); currentIt != currentlyRunning.end(); ++currentIt)
+		(*currentIt)->reset();
+
+	previouslyRunning.clear();
+	currentlyRunning.clear();
+	currentlyFinished.clear();
+}
+
 void BehaviourTree::EvaluationContext::initialize() {
 	std::swap(previouslyRunning, currentlyRunning);
 	currentlyRunning.clear();
 	currentlyFinished.clear();
+
+	// remove dead units
+	auto isUnitDead = [](springai::Unit* u) { return u->GetHealth() <= 0; };
+	for (auto& role : roleUnits_) {
+		role.erase(std::remove_if(role.begin(), role.end(), isUnitDead), role.end());
+	}
+	allUnits_.erase(std::remove_if(allUnits_.begin(), allUnits_.end(), isUnitDead), allUnits_.end());
+
+	setActiveRole(ALL_ROLES);
 }
 
 EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
@@ -23,10 +84,6 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 
 	if (node == nullptr) // prevent attempts to tick a non-existant node/branch
 		return btFailure;
-
-	// remove dead units
-	units_.erase(std::remove_if(units_.begin(), units_.end(),
-						   [](springai::Unit* u) { return u->GetHealth() <= 0; }), units_.end());
 
 	EvaluationResult result = node->tick(*this);
 	switch (result)
@@ -56,6 +113,8 @@ void BehaviourTree::EvaluationContext::finalize() {
 		if (noLongerRunning)
 			(*previousIt)->reset();
 	}
+
+	setActiveRole(ALL_ROLES);
 }
 
 
@@ -83,6 +142,9 @@ BehaviourTree::BehaviourTree()
 
 }
 
+void BehaviourTree::reset(EvaluationContext& context) {
+	context.reset();
+}
 void BehaviourTree::tick(EvaluationContext& context) {
 	context.initialize();
 	if (root_ != nullptr)

@@ -8,7 +8,7 @@
 using namespace BT;
 
 EvaluationResult GroupReporter::execute(const std::vector<springai::Unit*> units) {
-  std::string message("Current units: ");
+  std::string message(treeInstanceId() + ": Current units: ");
 
   int limit = maxUnitReported_;
   for (auto it = units.begin(); it != units.end() && --limit >= 0; ++it)

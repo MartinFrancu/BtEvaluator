@@ -35,23 +35,32 @@ namespace BT {
 
 		class EvaluationContext {
 		public:
-			springai::OOAICallback* callback_;
-			EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId)
-				: callback_(callback), units_(callback->GetSelectedUnits()), instanceId_(instanceId) {}
+			const int ALL_ROLES = -1;
 
-			const std::vector<springai::Unit*>& units() const { return units_; }
-			void setUnits(const std::vector<springai::Unit*>& units) { units_ = units; }
+			springai::OOAICallback* callback_;
+			EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId);
+
+			const std::vector<springai::Unit*>& units() const { return *currentUnits_; }
+			bool removeUnits(const std::vector<springai::Unit*>& units);
+			void setUnits(int roleId, const std::vector<springai::Unit*>& units);
+
+			void setActiveRole(int roleId);
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() const { return currentlyFinished; }
 			const std::vector<Node*>& running() const { return currentlyRunning; }
 
 			const std::string& treeInstanceId() const { return instanceId_; }
 
+			void clear();
+			void reset();
+
 			void initialize();
 			EvaluationResult tickNode(Node* node);
 			void finalize();
 		private:
-			std::vector<springai::Unit*> units_;
+			std::vector<springai::Unit*>* currentUnits_;
+			std::vector<springai::Unit*> allUnits_;
+			std::vector<std::vector<springai::Unit*>> roleUnits_;
 			std::vector<std::pair<Node*, EvaluationResult>> currentlyFinished;
 			std::vector<Node*> currentlyRunning;
 			std::vector<Node*> previouslyRunning;
@@ -155,6 +164,7 @@ namespace BT {
 
 		BehaviourTree();
 
+		void reset(EvaluationContext& context);
 		void tick(EvaluationContext& context);
 
 		void setRoot(Node* node) { root_.reset(node); }

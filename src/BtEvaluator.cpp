@@ -198,9 +198,9 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				if (treeMap.find(instanceId) == treeMap.end()) {
 					treeMap.emplace(instanceId, make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback, instanceId)));
 				}
-				auto& treeContextPair(treeMap.at(data["instanceId"].get<string>()));
-				treeContextPair.second = BehaviourTree::EvaluationContext(callback, instanceId);
+				auto& treeContextPair(treeMap.at(instanceId));
 				treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
+				treeContextPair.second.clear();
 			} else if (messageCode == "REPORT_TREE") {
 				auto treeIterator = treeMap.find(instanceId);
 				if (treeIterator == treeMap.end()) {
@@ -209,10 +209,29 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				}
 				reportingContext = &treeIterator->second.second;
 			} else if (messageCode == "ASSIGN_UNITS") {
-				treeMap.at(instanceId).second = BehaviourTree::EvaluationContext(callback, instanceId);
+				auto iterator = treeMap.find(instanceId);
+				if (iterator != treeMap.end()) {
+					int roleId = 0;
+					std::vector<springai::Unit*> units = callback->GetSelectedUnits(); // we unfortunately don't have a way to translate units ids to springai:Unit*, so we cannot take units as a parameter
+					for (auto& treeMapPair : treeMap) {
+						if (treeMapPair.second.second.removeUnits(units)) { // remove the units we are assigning from all trees (including the one where we will assign them next)
+							treeMapPair.second.second.reset();
+						}
+					}
+					iterator->second.second.setUnits(roleId, units);
+					iterator->second.second.reset();
+				} else
+					return; // TODO: return RESPONSE
 			}
 			else if (messageCode == "REMOVE_TREE") {
-				treeMap.erase(data["instanceId"].get<string>());
+				auto iterator = treeMap.find(instanceId);
+				if (iterator != treeMap.end()) {
+					if (reportingContext == &iterator->second.second) {
+						reportingContext = nullptr;
+					}
+					treeMap.erase(iterator);
+				} else
+					return; // TODO: return RESPONSE
 			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library
