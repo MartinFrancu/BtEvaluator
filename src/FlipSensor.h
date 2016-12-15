@@ -5,6 +5,7 @@
 
 namespace BT {
 	class FlipSensor : public SpringCommand {
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:
 		EvaluationResult currentState_;
 	public:
@@ -12,7 +13,7 @@ namespace BT {
 		~FlipSensor() {}
 
 		virtual std::string name() { return "FlipSensor"; }
-		virtual EvaluationResult execute(const std::vector<springai::Unit*> units) override;
+		EvaluationResult execute(const EvaluationContext& context) override;
 
 		class Factory : public SpringCommand::Factory {
 		public:

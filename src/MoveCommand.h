@@ -7,6 +7,7 @@
 
 namespace BT {
 	class MoveCommand : public SpringCommand {
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
 
 		explicit MoveCommand(const std::string& id, springai::OOAICallback* callback)
@@ -15,8 +16,8 @@ namespace BT {
 
 		std::string name() override { return "MoveCommand"; }
 
-		EvaluationResult execute(const std::vector<springai::Unit*> units) override {
-			for (auto it = units.begin(); it != units.end(); ++it) {
+		EvaluationResult execute(const EvaluationContext& context) override {
+			for (auto it = context.units().begin(); it != context.units().end(); ++it) {
 				auto unit(*it);
 				std::string msg("Moving unit " + std::to_string(unit->GetUnitId()));
 				callback->GetGame()->SendTextMessage(msg.c_str(), 0);

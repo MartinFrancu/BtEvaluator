@@ -13,8 +13,7 @@ using namespace std;
 
 
 BehaviourTree::EvaluationContext::EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId)
-	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(0) {
-	currentUnits_ = &roleUnits_[0];
+	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(&allUnits_), currentRole_(ALL_ROLES) {
 }
 
 bool BehaviourTree::EvaluationContext::removeUnits(const std::vector<springai::Unit*>& units) {
@@ -41,6 +40,7 @@ void BehaviourTree::EvaluationContext::setUnits(int roleId, const std::vector<sp
 	allUnits_.insert(allUnits_.end(), units.begin(), units.end());
 }
 void BehaviourTree::EvaluationContext::setActiveRole(int roleId) {
+	currentRole_ = roleId;
 	if (roleId == ALL_ROLES) {
 		currentUnits_ = &allUnits_;
 	}	else {
@@ -57,7 +57,7 @@ void BehaviourTree::EvaluationContext::clear() {
 }
 void BehaviourTree::EvaluationContext::reset() {
 	for (auto currentIt = currentlyRunning.begin(); currentIt != currentlyRunning.end(); ++currentIt)
-		(*currentIt)->reset();
+		(*currentIt)->reset(*this);
 
 	previouslyRunning.clear();
 	currentlyRunning.clear();
@@ -111,16 +111,16 @@ void BehaviourTree::EvaluationContext::finalize() {
 				noLongerRunning = false;
 
 		if (noLongerRunning)
-			(*previousIt)->reset();
+			(*previousIt)->reset(*this);
 	}
 
 	setActiveRole(ALL_ROLES);
 }
 
 
-void BehaviourTree::Node::reset() {
+void BehaviourTree::Node::reset(const EvaluationContext& context) {
 	for (auto it = children_.begin(); it != children_.end(); ++it) {
-		(*it)->reset();
+		(*it)->reset(context);
 	}
 }
 

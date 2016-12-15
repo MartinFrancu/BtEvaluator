@@ -16,7 +16,7 @@ namespace BT {
 
 		std::string name() override { return "ConditionNode"; }
 		EvaluationResult tick(EvaluationContext& context) override;
-		virtual void reset() override;
+		void reset(const EvaluationContext& context) override;
 
 		class Factory : public TernaryNode::Factory {
 		private:
@@ -25,6 +25,7 @@ namespace BT {
 			Factory() : TernaryNode::Factory() {}
 
 			std::string typeName() const override { return "condition"; }
+			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
 		protected:
 			virtual ChildDefinition firstChild() const { return ChildDefinition(); }
 			virtual ChildDefinition secondChild() const { return ChildDefinition(); }

@@ -1,21 +1,21 @@
-#ifndef _SEQUENCENODE_H
-#define _SEQUENCENODE_H
+#ifndef _SWITCHNODE_H
+#define _SWITCHNODE_H
 
 #include "BehaviourTree.h"
 #include "BehaviourTreeFactory.h"
 
 namespace BT
 {
-  class SequenceNode : public BehaviourTree::GenericNode
+  class SwitchNode : public BehaviourTree::GenericNode
   {
     typedef BehaviourTree::EvaluationContext EvaluationContext;
   public:
-    SequenceNode(const std::string& id) :
-      GenericNode(id), nextChildIndex_(0)
+    SwitchNode(const std::string& id, EvaluationResult waitFor) :
+      GenericNode(id), waitFor_(waitFor)
     { }
-    virtual ~SequenceNode() {}
+    virtual ~SwitchNode() {}
 
-	std::string name() override { return "SequenceNode"; }
+    std::string name() override { return "SwitchNode"; }
     EvaluationResult tick(EvaluationContext& context) override;
     void reset(const EvaluationContext& context) override;
 	
@@ -23,7 +23,8 @@ namespace BT
 		public:
 			Factory() : GenericNode::Factory() {}
 
-			std::string typeName() const override { return "sequence"; }
+			std::string typeName() const override { return "switch"; }
+			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
 		protected:
 			std::unique_ptr<GenericNode> createNode(
 				const std::string& id, 
@@ -31,8 +32,9 @@ namespace BT
 				) const override;
 		};
 	private:
-    std::size_t nextChildIndex_;
+		EvaluationResult waitFor_;
+		std::vector<bool> childFinished_;
   };
 }
 
-#endif // _SEQUENCENODE_H
+#endif // _SWITCHNODE_H

@@ -3,7 +3,7 @@
 
 using namespace BT;
 
-EvaluationResult EchoCommand::execute(const std::vector<springai::Unit*> units) {
+EvaluationResult EchoCommand::execute(const EvaluationContext& context) {
 	callback->GetGame()->SendTextMessage(("BT-Echo: " + message).c_str(), 0);
   return btSuccess;
 }

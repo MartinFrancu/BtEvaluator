@@ -19,7 +19,7 @@ EvaluationResult ConditionNode::tick(EvaluationContext& context)
     branchResult = context.tickNode(thirdChild());
 
   if (branchResult != btRunning)
-    reset();
+    reset(context);
 
   if (conditionResult == btRunning)
     return btRunning;
@@ -27,18 +27,35 @@ EvaluationResult ConditionNode::tick(EvaluationContext& context)
     return branchResult;
 }
 
-void ConditionNode::reset()
+void ConditionNode::reset(const EvaluationContext& context)
 {
-	Node::reset();
+	Node::reset(context);
 	lastResult_ = btUndefined;
 }
 
+std::vector<BT::BehaviourTree::ParameterDefinition> ConditionNode::Factory::parameters() const {
+	return{
+		BehaviourTree::ParameterDefinition {
+			"repeat",
+			"bool",
+			"checkBox",
+			"false"
+		}
+	};
+}
 
 std::unique_ptr<BehaviourTree::TernaryNode> ConditionNode::Factory::createNode(
 	const std::string& id,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
+	bool repeatable;
+
+	auto it = parameters.find("repeat");
+	if (it != parameters.end()) {
+		repeatable = it->second.asBoolean();
+	}
+
 	return std::unique_ptr<BehaviourTree::TernaryNode>(
 		new ConditionNode(id, false)
-		);
+	);
 }

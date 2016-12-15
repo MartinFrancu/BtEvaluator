@@ -5,6 +5,7 @@
 
 namespace BT {
 	class EchoCommand : public SpringCommand {
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:
 		std::string message;
 	public:
@@ -13,7 +14,7 @@ namespace BT {
 		~EchoCommand() {}
 
 		std::string name() override { return "EchoCommand"; }
-		EvaluationResult execute(const std::vector<springai::Unit*> units) override;
+		EvaluationResult execute(const EvaluationContext& context) override;
 
 		class Factory : public SpringCommand::Factory {
 		private:

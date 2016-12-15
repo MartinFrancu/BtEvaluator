@@ -5,14 +5,15 @@
 
 namespace BT {
   class GroupReporter : public SpringCommand {
-  private:
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
+	private:
     int maxUnitReported_;
   public:
     explicit GroupReporter(const std::string& id, springai::OOAICallback* callback, int maxUnitReported = 5) : SpringCommand(id, callback), maxUnitReported_(maxUnitReported) {}
     ~GroupReporter() {}
 
-    virtual std::string name() { return "GroupReporter"; }
-    virtual EvaluationResult execute(const std::vector<springai::Unit*> units) override;
+    std::string name() override { return "GroupReporter"; }
+    EvaluationResult execute(const EvaluationContext& context) override;
 
 		class Factory : public SpringCommand::Factory {
 		public:

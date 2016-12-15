@@ -7,13 +7,14 @@
 
 using json = nlohmann::json;
 using namespace std;
+using namespace BT;
 
-BT::EvaluationResult BT::LuaCommand::execute(const vector<springai::Unit*> units) {
+EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 	vector<int> ids;
-	for (auto unit : units) {
+	for (auto unit : context.units()) {
 		ids.push_back(unit->GetUnitId());
 	}
-	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "parameter", parameter_ } });
+	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "parameter", parameter_ }, { "treeId", context.treeInstanceId() } });
 	if (result == "R") {
 		return btRunning;
 	} else if (result == "S") {
@@ -25,13 +26,13 @@ BT::EvaluationResult BT::LuaCommand::execute(const vector<springai::Unit*> units
 	}
 }
 
-void BT::LuaCommand::reset() {
-	runLuaScript(json{{"func", "RESET"}});
+void LuaCommand::reset(const EvaluationContext& context) {
+	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() } });
 }
 
-std::vector<BT::BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::parameters() const {
+std::vector<BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::parameters() const {
 	return{
-        BehaviourTree::ParameterDefinition{
+		BehaviourTree::ParameterDefinition{
 			"scriptName",
 			"string",
 			"editBox",
@@ -80,6 +81,5 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 string BT::LuaCommand::runLuaScript(json params) const {
 	params["name"] = scriptName_;
 	params["id"] = id();
-	params["treeId"] = treeInstanceId();
 	return callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
 }

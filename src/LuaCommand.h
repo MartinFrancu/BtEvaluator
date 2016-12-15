@@ -5,12 +5,13 @@
 namespace BT {
 
 	class LuaCommand : public SpringCommand {
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
 		LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName, nlohmann::json parameter = {}) : SpringCommand(id, callback), scriptName_(scriptName), parameter_(parameter) {}
 		~LuaCommand() {};
 
-		EvaluationResult execute(const std::vector<springai::Unit*> units) override;
-		void reset() override;
+		EvaluationResult execute(const EvaluationContext& context) override;
+		void reset(const EvaluationContext& context) override;
 
 		virtual std::string name() override { return "LuaCommand"; }
 

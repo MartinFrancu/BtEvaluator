@@ -7,11 +7,11 @@
 
 using namespace BT;
 
-EvaluationResult GroupReporter::execute(const std::vector<springai::Unit*> units) {
-  std::string message(treeInstanceId() + ": Current units: ");
+EvaluationResult GroupReporter::execute(const EvaluationContext& context) {
+  std::string message("Current units: ");
 
   int limit = maxUnitReported_;
-  for (auto it = units.begin(); it != units.end() && --limit >= 0; ++it)
+  for (auto it = context.units().begin(); it != context.units().end() && --limit >= 0; ++it)
   {
     auto unit(*it);
     if (limit + 1 != maxUnitReported_)
@@ -20,6 +20,12 @@ EvaluationResult GroupReporter::execute(const std::vector<springai::Unit*> units
   }
   if (limit < 0)
     message += "...";
+
+	message += "                                                                                                                  ";
+	if (context.activeRole() != EvaluationContext::ALL_ROLES) {
+		message += "Role: " + std::to_string(context.activeRole()) + "   ";
+	}
+	message += "Instance: " + context.treeInstanceId();
 
   callback->GetGame()->SendTextMessage(message.c_str(), 0);
 
@@ -39,5 +45,5 @@ std::unique_ptr<BehaviourTree::LeafNode> GroupReporter::Factory::createNode(
 
 	return std::unique_ptr<BehaviourTree::LeafNode>(
 		new GroupReporter(id, callback_, reportCount)
-		);
+	);
 }

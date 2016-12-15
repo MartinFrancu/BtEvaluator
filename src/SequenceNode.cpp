@@ -12,17 +12,17 @@ EvaluationResult SequenceNode::tick(EvaluationContext& context)
       return btRunning;
     else if (childResult == btFailure)
     {
-      reset();
+      reset(context);
       return btFailure;
     }
   }
-  reset();
+  reset(context);
   return btSuccess;
 }
 
-void SequenceNode::reset()
+void SequenceNode::reset(const EvaluationContext& context)
 {
-	Node::reset();
+	Node::reset(context);
 	nextChildIndex_ = 0;
 }
 

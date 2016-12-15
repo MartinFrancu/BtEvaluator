@@ -35,7 +35,7 @@ namespace BT {
 
 		class EvaluationContext {
 		public:
-			const int ALL_ROLES = -1;
+			static const int ALL_ROLES = -1;
 
 			springai::OOAICallback* callback_;
 			EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId);
@@ -44,6 +44,7 @@ namespace BT {
 			bool removeUnits(const std::vector<springai::Unit*>& units);
 			void setUnits(int roleId, const std::vector<springai::Unit*>& units);
 
+			int activeRole() const { return currentRole_; }
 			void setActiveRole(int roleId);
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() const { return currentlyFinished; }
@@ -58,6 +59,7 @@ namespace BT {
 			EvaluationResult tickNode(Node* node);
 			void finalize();
 		private:
+			int currentRole_;
 			std::vector<springai::Unit*>* currentUnits_;
 			std::vector<springai::Unit*> allUnits_;
 			std::vector<std::vector<springai::Unit*>> roleUnits_;
@@ -87,7 +89,7 @@ namespace BT {
 
 			virtual std::string name() = 0;
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
-			virtual void reset(); // base implementation only resets children
+			virtual void reset(const EvaluationContext& context); // base implementation only resets children
 		protected:
 			void connectTo(Node* node, std::unique_ptr<Node>& link);
 			std::vector<std::unique_ptr<Node>> children_ = std::vector<std::unique_ptr<Node>>();

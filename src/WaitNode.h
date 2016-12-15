@@ -5,6 +5,7 @@
 
 namespace BT {
 	class WaitNode : public SpringCommand {
+		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:
 		std::size_t counter_;
 		std::size_t tickCount_;
@@ -14,18 +15,19 @@ namespace BT {
 		~WaitNode() {}
 
 		std::string name() override { return "WaitNode"; }
-		EvaluationResult execute(const std::vector<springai::Unit*> units) override;
-		void reset() override;
+		EvaluationResult execute(const EvaluationContext& context) override;
+		void reset(const EvaluationContext& context) override;
 
 		class Factory : public SpringCommand::Factory {
 		public:
 			Factory(springai::OOAICallback* callback) : SpringCommand::Factory(callback) {}
-			virtual std::string typeName() const { return "wait"; }
+			std::string typeName() const override { return "wait"; }
+			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
 		protected:
-			virtual std::unique_ptr<LeafNode> createNode(
+			std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
-			) const;
+			) const override;
 		};
 	};
 }

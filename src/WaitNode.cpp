@@ -3,10 +3,10 @@
 
 using namespace BT;
 
-EvaluationResult WaitNode::execute(const std::vector<springai::Unit*> units) {
+EvaluationResult WaitNode::execute(const EvaluationContext& context) {
   if (++counter_ > tickCount_)
   {
-    reset();
+    reset(context);
     return btSuccess;
   }
   else
@@ -16,11 +16,24 @@ EvaluationResult WaitNode::execute(const std::vector<springai::Unit*> units) {
   }
 }
 
-void WaitNode::reset()
+void WaitNode::reset(const EvaluationContext& context)
 {
+	Node::reset(context);
   counter_ = 0;
 }
 
+
+std::vector<BehaviourTree::ParameterDefinition> WaitNode::Factory::parameters() const
+{
+	return{
+		BehaviourTree::ParameterDefinition {
+			"time",
+			"number",
+			"editBox",
+			"10"
+		}
+	};
+}
 
 std::unique_ptr<BehaviourTree::LeafNode> WaitNode::Factory::createNode(
 	const std::string& id,
