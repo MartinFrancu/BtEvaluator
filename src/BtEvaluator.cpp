@@ -213,7 +213,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 			} else if (messageCode == "ASSIGN_UNITS") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
-					int roleId = 0;
+					int roleId = data["role"];
 					std::vector<springai::Unit*> units = callback->GetSelectedUnits(); // we unfortunately don't have a way to translate units ids to springai:Unit*, so we cannot take units as a parameter
 					for (auto& treeMapPair : treeMap) {
 						if (treeMapPair.second.second.removeUnits(units)) { // remove the units we are assigning from all trees (including the one where we will assign them next)
