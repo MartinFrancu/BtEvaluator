@@ -67,12 +67,12 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
     auto it = parameters.find("x");
 	if (it != parameters.end())
 		x = it->second.asInteger();
-    paramJson[it->first] = it->second.asInteger();
+    paramJson[it->first] = it->second.jsonValue;
 
     it = parameters.find("y");
 	if (it != parameters.end())
 		y = it->second.asInteger();
-    paramJson[it->first] = it->second.asInteger();
+    paramJson[it->first] = it->second.jsonValue;
 
 	return unique_ptr<LeafNode>(
 		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), paramJson));

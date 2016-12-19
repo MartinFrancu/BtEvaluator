@@ -220,8 +220,8 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 							treeMapPair.second.second.reset();
 						}
 					}
-					iterator->second.second.setUnits(roleId, units);
 					iterator->second.second.reset();
+					iterator->second.second.setUnits(roleId, units);
 				} else
 					return; // TODO: return RESPONSE
 			}
@@ -300,7 +300,7 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 	if (tree.find("parameters") != tree.end()) {
 		for (auto& parameter : tree["parameters"]) {
 			auto& value = parameter["value"];
-			parameters[parameter["name"]] = ParameterValuePlaceholder{ value.is_string() ? value.get<std::string>() : value.dump() };
+			parameters[parameter["name"]] = ParameterValuePlaceholder{ value.is_string() ? value.get<std::string>() : value.dump(), value };
 		}
 	}
 

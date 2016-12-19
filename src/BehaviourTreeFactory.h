@@ -3,11 +3,14 @@
 
 #include "BehaviourTree.h"
 
+#include "json.hpp"
+
 namespace BT {
 	class BehaviourTree::Node::Factory {
 	public:
 		struct ParameterValuePlaceholder {
 			std::string value;
+			nlohmann::json jsonValue;
 
 			std::string asString(std::string defaultValue = "") const;
 			int asInteger(int defaultValue = 0) const;
