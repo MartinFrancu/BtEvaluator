@@ -7,7 +7,7 @@ namespace BT {
 	class LuaCommand : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
-		LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName, nlohmann::json parameter = {}) : SpringCommand(id, callback), scriptName_(scriptName), parameter_(parameter) {}
+		LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName, nlohmann::json parameter = {});
 		~LuaCommand() {};
 
 		EvaluationResult execute(const EvaluationContext& context) override;
@@ -33,6 +33,7 @@ namespace BT {
 	private:
 		std::string runLuaScript(nlohmann::json params) const;
 
+		springai::Lua* lua_;
 		std::string scriptName_;
 		nlohmann::json parameter_;
 	};

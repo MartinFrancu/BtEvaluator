@@ -9,6 +9,12 @@ using json = nlohmann::json;
 using namespace std;
 using namespace BT;
 
+LuaCommand::LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName, nlohmann::json parameter)
+	: SpringCommand(id, callback), scriptName_(scriptName), parameter_(parameter), lua_(callback->GetLua())
+{
+	lua_->CallUI(("BETS CREATE_COMMAND " + (json{ { "name", scriptName }, { "id", id }, { "parameter", parameter } }).dump()).c_str(), -1);
+}
+
 EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 	vector<int> ids;
 	for (auto unit : context.units()) {
@@ -59,21 +65,9 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 			continue;
 		}
 
-		paramJson[it->first] = it->second.asString();
+		paramJson[it->first] = it->second.jsonValue;
 	}
     
-    int x, y;
-
-    auto it = parameters.find("x");
-	if (it != parameters.end())
-		x = it->second.asInteger();
-    paramJson[it->first] = it->second.jsonValue;
-
-    it = parameters.find("y");
-	if (it != parameters.end())
-		y = it->second.asInteger();
-    paramJson[it->first] = it->second.jsonValue;
-
 	return unique_ptr<LeafNode>(
 		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), paramJson));
 }
