@@ -1,8 +1,8 @@
-#include "SwitchNode.h"
+#include "RoleSplitNode.h"
 
 using namespace BT;
 
-EvaluationResult SwitchNode::tick(EvaluationContext& context)
+EvaluationResult RoleSplitNode::tick(EvaluationContext& context)
 {
 	if (context.activeRole() != EvaluationContext::ALL_ROLES)	{
 		int childIndex = context.activeRole();
@@ -46,14 +46,14 @@ EvaluationResult SwitchNode::tick(EvaluationContext& context)
 	}
 }
 
-void SwitchNode::reset(const EvaluationContext& context)
+void RoleSplitNode::reset(const EvaluationContext& context)
 {
 	Node::reset(context);
 	childFinished_.clear();
 }
 
 
-std::vector<BehaviourTree::ParameterDefinition> SwitchNode::Factory::parameters() const
+std::vector<BehaviourTree::ParameterDefinition> RoleSplitNode::Factory::parameters() const
 {
 	return{
 		BehaviourTree::ParameterDefinition {
@@ -65,7 +65,7 @@ std::vector<BehaviourTree::ParameterDefinition> SwitchNode::Factory::parameters(
 	};
 }
 
-std::unique_ptr<BehaviourTree::GenericNode> SwitchNode::Factory::createNode(
+std::unique_ptr<BehaviourTree::GenericNode> RoleSplitNode::Factory::createNode(
 	const std::string& id,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
@@ -83,6 +83,6 @@ std::unique_ptr<BehaviourTree::GenericNode> SwitchNode::Factory::createNode(
 	}
 
 	return std::unique_ptr<BehaviourTree::GenericNode>(
-		new SwitchNode(id, waitFor)
+		new RoleSplitNode(id, waitFor)
 	);
 }

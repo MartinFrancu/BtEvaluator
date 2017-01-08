@@ -6,16 +6,16 @@
 
 namespace BT
 {
-  class SwitchNode : public BehaviourTree::GenericNode
+  class RoleSplitNode : public BehaviourTree::GenericNode
   {
     typedef BehaviourTree::EvaluationContext EvaluationContext;
   public:
-    SwitchNode(const std::string& id, EvaluationResult waitFor) :
+    RoleSplitNode(const std::string& id, EvaluationResult waitFor) :
       GenericNode(id), waitFor_(waitFor)
     { }
-    virtual ~SwitchNode() {}
+    virtual ~RoleSplitNode() {}
 
-    std::string name() override { return "SwitchNode"; }
+    std::string name() override { return "RoleSplitNode"; }
     EvaluationResult tick(EvaluationContext& context) override;
     void reset(const EvaluationContext& context) override;
 	
@@ -23,7 +23,7 @@ namespace BT
 		public:
 			Factory() : GenericNode::Factory() {}
 
-			std::string typeName() const override { return "switch"; }
+			std::string typeName() const override { return "roleSplit"; }
 			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
 		protected:
 			std::unique_ptr<GenericNode> createNode(

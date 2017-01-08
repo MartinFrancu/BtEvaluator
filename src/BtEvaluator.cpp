@@ -17,7 +17,7 @@
 
 #include "SequenceNode.h"
 #include "ConditionNode.h"
-#include "SwitchNode.h"
+#include "RoleSplitNode.h"
 #include "SpringCommand.h"
 #include "EchoCommand.h"
 #include "WaitNode.h"
@@ -85,7 +85,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
 		new SequenceNode::Factory(),
 		new ConditionNode::Factory(),
-		new SwitchNode::Factory(),
+		new RoleSplitNode::Factory(),
 		new EchoCommand::Factory(callback),
 		new MoveCommand::Factory(callback),
 		new FlipSensor::Factory(callback),
