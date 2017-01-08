@@ -17,20 +17,21 @@
 
 #include "SequenceNode.h"
 #include "ConditionNode.h"
-#include "SwitchNode.h"
+#include "RoleSplitNode.h"
 #include "SpringCommand.h"
 #include "EchoCommand.h"
 #include "WaitNode.h"
 #include "FlipSensor.h"
 #include "MoveCommand.h"
 #include "GroupReporter.h"
+#include "LuaCommand.h"
+#include "LuaExpression.h"
 
 #include <memory>
 #include <string>
 #include <sstream>
 
 #include <json.hpp>
-#include "LuaCommand.h"
 using json = nlohmann::json;
 using namespace std;
 
@@ -84,13 +85,14 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
 		new SequenceNode::Factory(),
 		new ConditionNode::Factory(),
-		new SwitchNode::Factory(),
+		new RoleSplitNode::Factory(),
 		new EchoCommand::Factory(callback),
 		new MoveCommand::Factory(callback),
 		new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
 		new GroupReporter::Factory(callback),
-		new LuaCommand::Factory(callback)
+		new LuaCommand::Factory(callback),
+		new LuaExpression::Factory(callback)
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}

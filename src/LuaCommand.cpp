@@ -10,6 +10,12 @@ using json = nlohmann::json;
 using namespace std;
 using namespace BT;
 
+LuaCommand::LuaCommand(const std::string& id, springai::OOAICallback* callback, std::string scriptName, nlohmann::json parameter)
+	: SpringCommand(id, callback), scriptName_(scriptName), parameter_(parameter), lua_(callback->GetLua())
+{
+	lua_->CallUI(("BETS CREATE_COMMAND " + (json{ { "name", scriptName }, { "id", id }, { "parameter", parameter } }).dump()).c_str(), -1);
+}
+
 EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 	vector<int> ids;
 	for (auto unit : context.units()) {
