@@ -4,6 +4,7 @@
 #include "Lua.h"
 #include "Unit.h"
 #include "json.hpp"
+#include "Game.h"
 
 using json = nlohmann::json;
 using namespace std;
@@ -14,6 +15,7 @@ EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 	for (auto unit : context.units()) {
 		ids.push_back(unit->GetUnitId());
 	}
+	context.callback_->GetGame()->SendTextMessage(json{ { "func", "RUN" },{ "units", ids },{ "parameter", parameter_ },{ "treeId", context.treeInstanceId() } }.dump().c_str(), 0);
 	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "parameter", parameter_ }, { "treeId", context.treeInstanceId() } });
 	if (result == "R") {
 		return btRunning;
@@ -31,24 +33,7 @@ void LuaCommand::reset(const EvaluationContext& context) {
 }
 
 std::vector<BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::parameters() const {
-	return{
-		BehaviourTree::ParameterDefinition{
-			"scriptName",
-			"string",
-			"editBox",
-			"move.lua"
-		},
-		BehaviourTree::ParameterDefinition{
-			"x",
-			"number",
-			"editBox",
-			"0"
-		}, BehaviourTree::ParameterDefinition{
-			"y",
-			"number",
-			"editBox",
-			"0"
-		} };
+	return{};
 }
 
 unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
@@ -58,22 +43,9 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 		if (it->first == "scriptName") {
 			continue;
 		}
-
-		paramJson[it->first] = it->second.asString();
+		paramJson[it->first] = it->second.jsonValue;
 	}
     
-    int x, y;
-
-    auto it = parameters.find("x");
-	if (it != parameters.end())
-		x = it->second.asInteger();
-    paramJson[it->first] = it->second.jsonValue;
-
-    it = parameters.find("y");
-	if (it != parameters.end())
-		y = it->second.asInteger();
-    paramJson[it->first] = it->second.jsonValue;
-
 	return unique_ptr<LeafNode>(
 		new LuaCommand(id, callback_, parameters.at("scriptName").asString(), paramJson));
 }
