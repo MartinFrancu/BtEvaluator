@@ -21,7 +21,7 @@ EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 	for (auto unit : context.units()) {
 		ids.push_back(unit->GetUnitId());
 	}
-	context.callback_->GetGame()->SendTextMessage(json{ { "func", "RUN" },{ "units", ids },{ "parameter", parameter_ },{ "treeId", context.treeInstanceId() } }.dump().c_str(), 0);
+	//context.callback_->GetGame()->SendTextMessage(json{ { "func", "RUN" },{ "units", ids },{ "parameter", parameter_ },{ "treeId", context.treeInstanceId() } }.dump().c_str(), 0);
 	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "parameter", parameter_ }, { "treeId", context.treeInstanceId() } });
 	if (result == "R") {
 		return btRunning;
