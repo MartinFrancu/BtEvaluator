@@ -41,7 +41,7 @@ std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::Factory::para
 	return{
 		BehaviourTree::ParameterDefinition{
 			"expression",
-			"string",
+			"expression",
 			"editBox",
 			"true"
 		}
