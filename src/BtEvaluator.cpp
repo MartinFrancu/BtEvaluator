@@ -23,6 +23,7 @@
 #include "WaitNode.h"
 #include "FlipSensor.h"
 #include "GroupReporter.h"
+#include "LuaCommand.h"
 #include "LuaExpression.h"
 
 #include <memory>
@@ -88,6 +89,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
 		new GroupReporter::Factory(callback),
+		new LuaCommand::Factory(callback),
 		new LuaExpression::Factory(callback)
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
