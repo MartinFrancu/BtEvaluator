@@ -248,6 +248,10 @@ void BtEvaluator::broadcastNodeDefinitions() const {
 	for (auto& pair : nodeFactories) {
 		auto& name = pair.first;
 		auto& factory = pair.second;
+		if (!factory->isAvailableInNodepool()) {
+			continue;
+		}
+
 		json children(json::array()), parameters(json::array());
 
 		for (auto& parameter : factory->parameters()) {

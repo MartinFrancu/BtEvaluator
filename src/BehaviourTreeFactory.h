@@ -32,6 +32,8 @@ namespace BT {
 		virtual std::vector<ParameterDefinition> parameters() const { return{}; }
 		virtual bool unlimitedChildren() const = 0;
 		virtual std::vector<ChildDefinition> children() const = 0;
+		// Is the node supposed to be automatically added to the BtCreator node pool?
+		virtual bool isAvailableInNodepool() const { return true; }
 	};
 
 	class BehaviourTree::LeafNode::Factory : public Node::Factory {

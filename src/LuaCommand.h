@@ -15,6 +15,7 @@ namespace BT {
 
 		virtual std::string name() override { return "LuaCommand"; }
 
+
 		class Factory : public SpringCommand::Factory {
 		public:
 			Factory(springai::OOAICallback* callback) : SpringCommand::Factory(callback) {}
@@ -24,6 +25,9 @@ namespace BT {
 			}
 
 			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
+			
+			// Command nodes are created separately in BtCreator
+			bool isAvailableInNodepool() const override { return false; }
 		protected:
 			std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
