@@ -106,7 +106,9 @@ Copy-Item (Join-Path -Path $mingwPath -ChildPath *.dll) .\tmp_BETS\SpringData\en
 
 "-- Adding README:" | Print
 
-Copy-Item .\BETS_readme.md .\tmp_BETS\README.md | Log
+dir .\BETS_readme.* | % {
+  Copy-Item (Resolve-Path $_) (".\tmp_BETS\" + $_.Name) | Log
+}
 
 "" | Print
 
