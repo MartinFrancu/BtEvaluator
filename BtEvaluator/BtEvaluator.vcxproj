@@ -81,35 +81,10 @@ build.bat "$(SPRING_SOURCE_DIR)" "$(SPRINGDATA_DIR)" "$(SolutionDir)"</NMakeReBu
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\AIExport.cpp" />
-    <ClCompile Include="..\src\BehaviourTree.cpp" />
-    <ClCompile Include="..\src\BehaviourTreeFactory.cpp" />
-    <ClCompile Include="..\src\BtEvaluator.cpp" />
-    <ClCompile Include="..\src\ConditionNode.cpp" />
-    <ClCompile Include="..\src\EchoCommand.cpp" />
-    <ClCompile Include="..\src\FlipSensor.cpp" />
-    <ClCompile Include="..\src\GroupReporter.cpp" />
-    <ClCompile Include="..\src\LuaCommand.cpp" />
-    <ClCompile Include="..\src\LuaExpression.cpp" />
-    <ClCompile Include="..\src\RoleSplitNode.cpp" />
-    <ClCompile Include="..\src\SequenceNode.cpp" />
-    <ClCompile Include="..\src\WaitNode.cpp" />
+    <ClCompile Include="..\src\*.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\AIExport.h" />
-    <ClInclude Include="..\src\BehaviourTree.h" />
-    <ClInclude Include="..\src\BehaviourTreeFactory.h" />
-    <ClInclude Include="..\src\BtEvaluator.h" />
-    <ClInclude Include="..\src\ConditionNode.h" />
-    <ClInclude Include="..\src\EchoCommand.h" />
-    <ClInclude Include="..\src\FlipSensor.h" />
-    <ClInclude Include="..\src\GroupReporter.h" />
-    <ClInclude Include="..\src\LuaCommand.h" />
-    <ClInclude Include="..\src\LuaExpression.h" />
-    <ClInclude Include="..\src\RoleSplitNode.h" />
-    <ClInclude Include="..\src\SequenceNode.h" />
-    <ClInclude Include="..\src\SpringCommand.h" />
-    <ClInclude Include="..\src\WaitNode.h" />
+    <ClInclude Include="..\src\*.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\*.lua" />
