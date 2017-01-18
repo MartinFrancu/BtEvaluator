@@ -11,7 +11,7 @@ EvaluationResult WaitNode::execute(const EvaluationContext& context) {
   }
   else
   {
-    callback->GetGame()->SendTextMessage(("Waiting for " + std::to_string(tickCount_)).c_str(), 0);
+    //callback->GetGame()->SendTextMessage(("Waiting for " + std::to_string(tickCount_)).c_str(), 0);
     return btRunning;
   }
 }
