@@ -120,7 +120,9 @@ void BehaviourTree::EvaluationContext::finalize() {
 
 void BehaviourTree::Node::reset(const EvaluationContext& context) {
 	for (auto it = children_.begin(); it != children_.end(); ++it) {
-		(*it)->reset(context);
+		if(*it != nullptr) {
+			(*it)->reset(context);
+		}
 	}
 }
 
