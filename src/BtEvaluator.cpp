@@ -333,7 +333,7 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 		} break;
 		case EVENT_LUA_MESSAGE: {
 			std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
-			game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
+			//game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
 			receiveLuaMessage(message);
 
 			//auto units = callback->GetSelectedUnits();
