@@ -31,6 +31,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <chrono>
 
 #include <json.hpp>
 using json = nlohmann::json;
@@ -110,7 +111,8 @@ void BtEvaluator::Initialize() {
 
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
-	if (frame % 10 == 0) {
+	if (frame % 30 == 0) {
+		auto t1 = chrono::high_resolution_clock::now();
 		for (auto it(treeMap.begin()); it != treeMap.end(); ++it) {
 			auto& behaviourTree(it->second.first);
 			auto& context(it->second.second);
@@ -128,6 +130,9 @@ void BtEvaluator::update(int frame) {
 			}
 			sendLuaMessage("UPDATE_STATES", update);
 		}
+		auto t2 = chrono::high_resolution_clock::now();
+		auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+		lua->CallUI(("BETS LOG Tick duration in ms: " + to_string(duration)).c_str(), -1);
 	}
 }
 
@@ -327,7 +332,7 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 
 	switch (event) {
 		case EVENT_UPDATE: {
-			// every frame UPDATE_EVENT is called
+			// every frame UPDATE_EVENT is called			
 			const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
 			update(updateData->frame);
 		} break;
