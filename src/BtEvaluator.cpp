@@ -203,6 +203,16 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 		try {
 			json data = json::parse(sstream);
 
+			if (messageCode == "RESET_TREES") {
+				for (auto& instIdData : data) {
+					auto iterator = treeMap.find(instIdData.get<string>());
+					if (iterator != treeMap.end()) {
+						iterator->second.second.reset();
+					}
+				}
+				return;
+			}
+
 			auto instanceId = data["instanceId"].get<string>();
 
 			// messages with data
