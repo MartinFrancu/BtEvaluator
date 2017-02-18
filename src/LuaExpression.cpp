@@ -66,5 +66,5 @@ std::unique_ptr<BehaviourTree::Node> BT::LuaExpression::Factory::createNode(cons
 
 string BT::LuaExpression::runLuaScript(json params) const {
 	params["id"] = id();
-	return callback->GetLua()->CallUI(("BETS EXPRESSION " + params.dump()).c_str(), -1);
+	return lua_->CallUI(("BETS EXPRESSION " + params.dump()).c_str(), -1);
 }

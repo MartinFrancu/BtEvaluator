@@ -59,5 +59,5 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 string BT::LuaCommand::runLuaScript(json params) const {
 	params["name"] = scriptName_;
 	params["id"] = id();
-	return callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
+	return lua_->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
 }
