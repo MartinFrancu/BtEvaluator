@@ -22,7 +22,7 @@ EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 		ids.push_back(unit->GetUnitId());
 	}
 	//context.callback_->GetGame()->SendTextMessage(json{ { "func", "RUN" },{ "units", ids },{ "parameter", parameter_ },{ "treeId", context.treeInstanceId() } }.dump().c_str(), 0);
-	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "parameter", parameter_ }, { "treeId", context.treeInstanceId() } });
+	string result = runLuaScript(json{ {"func", "RUN"}/*,{"units", ids}*/, { "parameter", parameter_ }, { "treeId", context.treeInstanceId() }, { "roleId", context.activeRole() } });
 	if (result == "R") {
 		return btRunning;
 	} else if (result == "S") {
@@ -35,7 +35,7 @@ EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 }
 
 void LuaCommand::reset(const EvaluationContext& context) {
-	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() } });
+	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() },{ "roleId", context.activeRole() } });
 }
 
 std::vector<BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::parameters() const {
@@ -59,5 +59,5 @@ unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(cons
 string BT::LuaCommand::runLuaScript(json params) const {
 	params["name"] = scriptName_;
 	params["id"] = id();
-	return callback->GetLua()->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
+	return lua_->CallUI(("BETS COMMAND " + params.dump()).c_str(), -1);
 }

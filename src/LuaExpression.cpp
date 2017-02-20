@@ -21,7 +21,7 @@ EvaluationResult LuaExpression::execute(const EvaluationContext& context) {
 	for (auto unit : context.units()) {
 		ids.push_back(unit->GetUnitId());
 	}
-	string result = runLuaScript(json{ {"func", "RUN"},{"units", ids}, { "expression", expression_ }, { "treeId", context.treeInstanceId() } });
+	string result = runLuaScript(json{ {"func", "RUN"},/*{"units", ids},*/ { "expression", expression_ }, { "treeId", context.treeInstanceId() }, { "roleId", context.activeRole() } });
 	if (result == "R") {
 		return btRunning;
 	} else if (result == "S") {
@@ -34,7 +34,7 @@ EvaluationResult LuaExpression::execute(const EvaluationContext& context) {
 }
 
 void LuaExpression::reset(const EvaluationContext& context) {
-	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() } });
+	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() },{ "roleId", context.activeRole() } });
 }
 
 std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::Factory::parameters() const {
@@ -66,5 +66,5 @@ std::unique_ptr<BehaviourTree::Node> BT::LuaExpression::Factory::createNode(cons
 
 string BT::LuaExpression::runLuaScript(json params) const {
 	params["id"] = id();
-	return callback->GetLua()->CallUI(("BETS EXPRESSION " + params.dump()).c_str(), -1);
+	return lua_->CallUI(("BETS EXPRESSION " + params.dump()).c_str(), -1);
 }

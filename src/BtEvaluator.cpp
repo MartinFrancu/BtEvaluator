@@ -20,6 +20,7 @@
 #include "ConstantNode.h"
 #include "RepeatNode.h"
 #include "RoleSplitNode.h"
+#include "ReferenceNode.h"
 #include "SpringCommand.h"
 #include "EchoCommand.h"
 #include "WaitNode.h"
@@ -91,6 +92,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new ConstantNode::Factory(btFailure),
 		new RepeatNode::Factory(),
 		new RoleSplitNode::Factory(),
+		new ReferenceNode::Factory(callback),
 		new EchoCommand::Factory(callback),
 		new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
@@ -202,6 +204,16 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	} else {
 		try {
 			json data = json::parse(sstream);
+
+			if (messageCode == "RESET_TREES") {
+				for (auto& instIdData : data) {
+					auto iterator = treeMap.find(instIdData.get<string>());
+					if (iterator != treeMap.end()) {
+						iterator->second.second.reset();
+					}
+				}
+				return;
+			}
 
 			auto instanceId = data["instanceId"].get<string>();
 
