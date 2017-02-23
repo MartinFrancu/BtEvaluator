@@ -123,14 +123,18 @@ void BtEvaluator::update(int frame) {
 
 		if(reportingContext) {
 			// UPDATE_STATES message
-			json update;
+			json states;
 			for (auto& finished : reportingContext->finished()) {
-				update[finished.first->id()] = nameOfEvaluationResult(finished.second);
+				states[finished.first->id()] = nameOfEvaluationResult(finished.second);
 			}
 			for (auto& running : reportingContext->running()) {
-				update[running->id()] = nameOfEvaluationResult(btRunning);
+				states[running->id()] = nameOfEvaluationResult(btRunning);
 			}
-			sendLuaMessage("UPDATE_STATES", update);
+			
+			sendLuaMessage("UPDATE_STATES", json{
+				{ "id", reportingContext->treeInstanceId() },
+				{ "states", states }
+			});
 		}
 		auto t2 = chrono::high_resolution_clock::now();
 		auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
