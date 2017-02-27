@@ -58,8 +58,8 @@ std::vector<BehaviourTree::ParameterDefinition> RoleSplitNode::Factory::paramete
 	return{
 		BehaviourTree::ParameterDefinition {
 			"mode",
-			"string", //enum(all-success, one-success, any-result)",
-			"editBox", //"comboBox",
+			"all-success,one-success,any-result", //enum(all-success, one-success, any-result)",
+			"comboBox", 
 			"all-success"
 		}
 	};
