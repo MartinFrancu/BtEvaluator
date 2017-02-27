@@ -58,7 +58,7 @@ std::vector<BehaviourTree::ParameterDefinition> RoleSplitNode::Factory::paramete
 	return{
 		BehaviourTree::ParameterDefinition {
 			"mode",
-			"all-success,one-success,any-result", //enum(all-success, one-success, any-result)",
+			"all-success,any-success,any-result", //enum(all-success, one-success, any-result)",
 			"comboBox", 
 			"all-success"
 		}
@@ -76,7 +76,7 @@ std::unique_ptr<BehaviourTree::GenericNode> RoleSplitNode::Factory::createNode(
 		std::string s = it->second.asString();
 		if (s == "all-success")
 			waitFor = btSuccess;
-		else if (s == "one-success")
+		else if (s == "any-success")
 			waitFor = btFailure;
 		else if (s == "any-result")
 			waitFor = btUndefined;
