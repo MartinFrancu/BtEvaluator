@@ -48,7 +48,7 @@ std::unique_ptr<BehaviourTree::TernaryNode> ConditionNode::Factory::createNode(
 	const std::string& id,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
-	bool repeatable;
+	bool repeatable = false;
 
 	auto it = parameters.find("repeat");
 	if (it != parameters.end()) {
@@ -56,6 +56,6 @@ std::unique_ptr<BehaviourTree::TernaryNode> ConditionNode::Factory::createNode(
 	}
 
 	return std::unique_ptr<BehaviourTree::TernaryNode>(
-		new ConditionNode(id, false)
+		new ConditionNode(id, repeatable)
 	);
 }
