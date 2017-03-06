@@ -44,6 +44,12 @@ std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::Factory::para
 			"expression",
 			"editBox",
 			"true"
+		},
+		BehaviourTree::ParameterDefinition{
+			"repeat",
+			"bool",
+			"checkBox",
+			"false"
 		}
 	};
 }
@@ -52,8 +58,14 @@ std::unique_ptr<BehaviourTree::Node> BT::LuaExpression::Factory::createNode(cons
 	if (children.size() > 2)
 		throw "Invalid number of children.";
 
+	bool repeatable = false;
+	auto it = parameters.find("repeat");
+	if (it != parameters.end()) {
+		repeatable = it->second.asBoolean();
+	}
+
 	auto conditionNode = unique_ptr<BehaviourTree::TernaryNode>(
-		new ConditionNode(id, false)
+		new ConditionNode(id, repeatable)
 	);
 	conditionNode->setChildren(
 		new LuaExpression(id + "-condition", callback_, parameters.at("expression").jsonValue),
