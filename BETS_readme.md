@@ -2,6 +2,7 @@
 BETS software project at MFF UK. Repository of widgets for creation of behaviour trees in Spring-based games.
 
 ## Installation
+Please remove previous versions of BETS before installation.
 Unzip the archive into the NOTA directory, in which SpringData resides.
 
 ## Usage
