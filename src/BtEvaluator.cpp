@@ -121,9 +121,9 @@ void BtEvaluator::update(int frame) {
 			behaviourTree.tick(context);
 		}
 
-		if(reportingContext) {
+		if (reportingContext) {
 			// UPDATE_STATES message
-			json states;
+			json states = json::object();
 			for (auto& finished : reportingContext->finished()) {
 				states[finished.first->id()] = nameOfEvaluationResult(finished.second);
 			}
