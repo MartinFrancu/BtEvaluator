@@ -130,7 +130,10 @@ void BtEvaluator::update(int frame) {
 			for (auto& running : reportingContext->running()) {
 				states[running->id()] = nameOfEvaluationResult(btRunning);
 			}
-			
+			for (auto& stopped : reportingContext->stopped()) {
+				states[stopped->id()] = nameOfEvaluationResult(btBreakpoint);
+			}
+
 			sendLuaMessage("UPDATE_STATES", json{
 				{ "id", reportingContext->treeInstanceId() },
 				{ "states", states }
@@ -250,8 +253,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					iterator->second.second.setUnits(roleId, units);
 				} else
 					return; // TODO: return RESPONSE
-			}
-			else if (messageCode == "REMOVE_TREE") {
+			}	else if (messageCode == "REMOVE_TREE") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					if (reportingContext == &iterator->second.second) {
@@ -260,6 +262,18 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					treeMap.erase(iterator);
 				} else
 					return; // TODO: return RESPONSE
+			}	else if (messageCode == "SET_BREAKPOINT") {
+				auto iterator = treeMap.find(instanceId);
+				if (iterator != treeMap.end()) {
+					std::string nodeId = data["nodeId"];
+					iterator->second.second.setBreakpoint(nodeId);
+				}
+			}	else if (messageCode == "REMOVE_BREAKPOINT") {
+				auto iterator = treeMap.find(instanceId);
+				if (iterator != treeMap.end()) {
+					std::string nodeId = data["nodeId"];
+					iterator->second.second.removeBreakpoint(nodeId);
+				}
 			}
 		} catch (std::logic_error err) {
 			// FIXME: logic_error can be raised by other things than the json library

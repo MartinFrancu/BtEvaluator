@@ -12,16 +12,20 @@ EvaluationResult RoleSplitNode::tick(EvaluationContext& context)
 		if(childFinished_.size() < count())
 			childFinished_.resize(count());
 
-		std::size_t runningCount = 0;
-		for (int childIndex = 0; childIndex < count(); ++childIndex)
+		if(stoppedAt() == 0)
+			runningCount_ = 0;
+		for (int childIndex = stoppedAt(); childIndex < count(); ++childIndex)
 		{
 			if (!childFinished_[childIndex])
 			{
 				Node* currentChild = child(childIndex);
 				context.setActiveRole(childIndex);
 				EvaluationResult childResult = context.tickNode(currentChild);
+				if (childResult == btBreakpoint)
+					return stopAt(childIndex);
+
 				if (childResult == btRunning)
-					++runningCount;
+					++runningCount_;
 				else
 				{
 					childFinished_[childIndex] = true;
@@ -35,13 +39,13 @@ EvaluationResult RoleSplitNode::tick(EvaluationContext& context)
 		}
 		context.setActiveRole(EvaluationContext::ALL_ROLES);
 
-		if (runningCount == 0)
+		if (runningCount_ == 0)
 		{
 			reset(context);
 			return waitFor_;
 		}
 		else {
-			return btRunning;
+			return notStopped(btRunning);
 		}
 	}
 }
