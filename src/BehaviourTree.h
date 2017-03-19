@@ -70,6 +70,7 @@ namespace BT {
 			void finalize();
 		private:
 			int currentRole_;
+			Node* stoppedLastTime_;
 			std::set<std::string> breakpoints_;
 			std::vector<springai::Unit*>* currentUnits_;
 			std::vector<springai::Unit*> allUnits_;
@@ -102,10 +103,13 @@ namespace BT {
 			virtual std::string name() = 0;
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
 			virtual void reset(const EvaluationContext& context); // base implementation only resets children
+
+			bool wasStopped() { return stoppedAt() > 0; }
 		protected:
 			unsigned int& stoppedAt() { return stoppedAt_; }
 			EvaluationResult stopAt(unsigned int index) { stoppedAt_ = index; return btBreakpoint; }
 			EvaluationResult notStopped(EvaluationResult result) { stoppedAt_ = 0; return result; }
+			EvaluationResult keep(EvaluationResult result) { stoppedAt_ = (result == btBreakpoint ? 1 : 0); return result; }
 
 			void connectTo(Node* node, std::unique_ptr<Node>& link);
 			std::vector<std::unique_ptr<Node>> children_ = std::vector<std::unique_ptr<Node>>();

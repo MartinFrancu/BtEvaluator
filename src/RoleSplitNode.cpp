@@ -7,7 +7,7 @@ EvaluationResult RoleSplitNode::tick(EvaluationContext& context)
 	if (context.activeRole() != EvaluationContext::ALL_ROLES)	{
 		int childIndex = context.activeRole();
 		Node* currentChild = child(childIndex);
-		return context.tickNode(currentChild);
+		return keep(context.tickNode(currentChild));
 	}	else {
 		if(childFinished_.size() < count())
 			childFinished_.resize(count());

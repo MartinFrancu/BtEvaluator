@@ -68,6 +68,7 @@ void BehaviourTree::EvaluationContext::reset() {
 
 void BehaviourTree::EvaluationContext::initialize() {
 	std::swap(previouslyRunning, currentlyRunning);
+	stoppedLastTime_ = nullptr;
 	currentlyRunning.clear();
 	currentlyFinished.clear();
 
@@ -98,8 +99,11 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 		return btFailure;
 
 	EvaluationResult result;
-	if (breakpoints_.find(node->id()) != breakpoints_.end())
+	if (!node->wasStopped() && stoppedLastTime_ != node && breakpoints_.find(node->id()) != breakpoints_.end())
+	{
 		result = btBreakpoint;
+		stoppedLastTime_ = node;
+	}
 	else
 		result = node->tick(*this);
 
