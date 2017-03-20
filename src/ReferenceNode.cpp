@@ -26,7 +26,7 @@ EvaluationResult ReferenceNode::tick(EvaluationContext& context)
 
 	lua_->CallUI(("BETS EXIT_SUBTREE " + (json{ { "id", id() } }).dump()).c_str(), -1);
 
-	return result;
+	return keep(result);
 }
 
 void ReferenceNode::reset(const EvaluationContext& context)

@@ -4,6 +4,7 @@
 #include <OOAICallback.h>
 
 #include <vector>
+#include <set>
 #include <memory>
 
 namespace BT {
@@ -16,7 +17,10 @@ namespace BT {
 		btFailure = 2,
 
 		// intermediary result
-		btRunning = 4
+		btRunning = 4,
+
+		// breakpoint flag, meant to be immediately returned while storing the current state so that the node can resume
+		btBreakpoint = 8
 	};
 	inline const char* nameOfEvaluationResult(EvaluationResult result) {
 		switch (result) {
@@ -24,6 +28,7 @@ namespace BT {
 		case btSuccess: return "success";
 		case btFailure: return "failure";
 		case btRunning: return "running";
+		case btBreakpoint: return "stopped";
 		default: return "unknown";
 		}
 	}
@@ -49,21 +54,29 @@ namespace BT {
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() const { return currentlyFinished; }
 			const std::vector<Node*>& running() const { return currentlyRunning; }
+			const std::vector<Node*>& stopped() const { return currentlyStopped; }
 
 			const std::string& treeInstanceId() const { return instanceId_; }
 
 			void clear();
 			void reset();
 
+			bool setBreakpoint(const std::string& nodeId);
+			bool removeBreakpoint(const std::string& nodeId);
+
 			void initialize();
+			void stoppedInitialize();
 			EvaluationResult tickNode(Node* node);
 			void finalize();
 		private:
 			int currentRole_;
+			Node* stoppedLastTime_;
+			std::set<std::string> breakpoints_;
 			std::vector<springai::Unit*>* currentUnits_;
 			std::vector<springai::Unit*> allUnits_;
 			std::vector<std::vector<springai::Unit*>> roleUnits_;
 			std::vector<std::pair<Node*, EvaluationResult>> currentlyFinished;
+			std::vector<Node*> currentlyStopped;
 			std::vector<Node*> currentlyRunning;
 			std::vector<Node*> previouslyRunning;
 
@@ -82,7 +95,7 @@ namespace BT {
 		public:
 			class Factory;
 
-			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr) {}
+			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0) {}
 			virtual ~Node() {}
 
 			const std::string& id() const { return id_; }
@@ -90,13 +103,20 @@ namespace BT {
 			virtual std::string name() = 0;
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
 			virtual void reset(const EvaluationContext& context); // base implementation only resets children
+
+			bool wasStopped() { return stoppedAt() > 0; }
 		protected:
+			unsigned int& stoppedAt() { return stoppedAt_; }
+			EvaluationResult stopAt(unsigned int index) { stoppedAt_ = index; return btBreakpoint; }
+			EvaluationResult notStopped(EvaluationResult result) { stoppedAt_ = 0; return result; }
+			EvaluationResult keep(EvaluationResult result) { stoppedAt_ = (result == btBreakpoint ? 1 : 0); return result; }
+
 			void connectTo(Node* node, std::unique_ptr<Node>& link);
 			std::vector<std::unique_ptr<Node>> children_ = std::vector<std::unique_ptr<Node>>();
 		private:
 			std::string id_;
 			Node* parent_; // weak reference
-
+			unsigned int stoppedAt_;
 		};
 
 		class LeafNode : public Node {
@@ -167,11 +187,12 @@ namespace BT {
 		BehaviourTree();
 
 		void reset(EvaluationContext& context);
-		void tick(EvaluationContext& context);
+		bool tick(EvaluationContext& context); // returns whether the tick succesfully ended or whether a breakpoint was reached
 
 		void setRoot(Node* node) { root_.reset(node); }
 
 	private:
+		bool breakpointReached_;
 		std::unique_ptr<Node> root_;
 	};
 }

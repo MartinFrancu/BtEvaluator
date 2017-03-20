@@ -8,8 +8,11 @@ EvaluationResult SequenceNode::tick(EvaluationContext& context)
   {
     Node* currentChild = child(nextChildIndex_);
     EvaluationResult childResult = context.tickNode(currentChild);
+		if (childResult == btBreakpoint)
+			return stopAt(nextChildIndex_ + 1);
+
     if (childResult == btRunning)
-      return btRunning;
+      return notStopped(btRunning);
     else if (childResult == btFailure)
     {
       reset(context);

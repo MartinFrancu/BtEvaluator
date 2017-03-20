@@ -4,8 +4,9 @@ using namespace BT;
 
 EvaluationResult RepeatNode::tick(EvaluationContext& context)
 {
-	context.tickNode(child());
-	return btRunning;
+	if (context.tickNode(child()) == btBreakpoint)
+		return stopAt(1);
+	return notStopped(btRunning);
 }
 
 std::unique_ptr<BehaviourTree::UnaryNode> RepeatNode::Factory::createNode(

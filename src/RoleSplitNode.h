@@ -33,6 +33,7 @@ namespace BT
 		};
 	private:
 		EvaluationResult waitFor_;
+		std::size_t runningCount_;
 		std::vector<bool> childFinished_;
   };
 }

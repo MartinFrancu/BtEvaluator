@@ -5,12 +5,18 @@ using namespace BT;
 EvaluationResult ConditionNode::tick(EvaluationContext& context)
 {
   EvaluationResult conditionResult = lastResult_;
-  if (conditionRepeatable_ || lastResult_ == btUndefined)
-  {
-    conditionResult = context.tickNode(firstChild());
-    if (conditionResult != btRunning)
-      lastResult_ = conditionResult;
-  }
+	if (stoppedAt() < 2) {
+		if (stoppedAt() == 1 || conditionRepeatable_ || lastResult_ == btUndefined) {
+			conditionResult = context.tickNode(firstChild());
+			if (conditionResult == btBreakpoint)
+				return stopAt(1);
+
+			if (conditionResult != btRunning)
+				lastResult_ = conditionResult;
+		}
+	}
+	else if (stoppedAt() == 2)
+		conditionResult = btRunning;
 
   EvaluationResult branchResult = btRunning;
   if (lastResult_ == btSuccess)
@@ -18,13 +24,16 @@ EvaluationResult ConditionNode::tick(EvaluationContext& context)
   else if (lastResult_ == btFailure)
     branchResult = context.tickNode(thirdChild());
 
+	if (branchResult == btBreakpoint)
+		return stopAt(conditionResult == btRunning ? 2 : 3);
+
   if (branchResult != btRunning)
     reset(context);
 
-  if (conditionResult == btRunning)
-    return btRunning;
+	if (conditionResult == btRunning)
+    return notStopped(btRunning);
   else
-    return branchResult;
+    return notStopped(branchResult);
 }
 
 void ConditionNode::reset(const EvaluationContext& context)

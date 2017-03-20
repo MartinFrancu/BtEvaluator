@@ -43,7 +43,7 @@ std::vector<BehaviourTree::ParameterDefinition> BT::LuaCommand::Factory::paramet
 }
 
 unique_ptr<BT::BehaviourTree::LeafNode> BT::LuaCommand::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters) const {
-	json paramJson;
+	json paramJson = json::object();
 
 	for (auto it = parameters.begin(); it != parameters.end(); ++it) {
 		if (it->first == "scriptName") {

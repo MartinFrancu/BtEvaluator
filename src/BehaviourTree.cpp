@@ -13,7 +13,7 @@ using namespace std;
 
 
 BehaviourTree::EvaluationContext::EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId)
-	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(&allUnits_), currentRole_(ALL_ROLES) {
+	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(&allUnits_), currentRole_(ALL_ROLES), breakpoints_() {
 }
 
 bool BehaviourTree::EvaluationContext::removeUnits(const std::vector<springai::Unit*>& units) {
@@ -51,6 +51,7 @@ void BehaviourTree::EvaluationContext::setActiveRole(int roleId) {
 	}
 }
 void BehaviourTree::EvaluationContext::clear() {
+	breakpoints_.clear();
 	allUnits_.clear();
 	roleUnits_.clear();
 	reset();
@@ -59,6 +60,7 @@ void BehaviourTree::EvaluationContext::reset() {
 	for (auto currentIt = currentlyRunning.begin(); currentIt != currentlyRunning.end(); ++currentIt)
 		(*currentIt)->reset(*this);
 
+	currentlyStopped.clear();
 	previouslyRunning.clear();
 	currentlyRunning.clear();
 	currentlyFinished.clear();
@@ -66,6 +68,7 @@ void BehaviourTree::EvaluationContext::reset() {
 
 void BehaviourTree::EvaluationContext::initialize() {
 	std::swap(previouslyRunning, currentlyRunning);
+	stoppedLastTime_ = nullptr;
 	currentlyRunning.clear();
 	currentlyFinished.clear();
 
@@ -78,6 +81,16 @@ void BehaviourTree::EvaluationContext::initialize() {
 
 	setActiveRole(ALL_ROLES);
 }
+void BehaviourTree::EvaluationContext::stoppedInitialize() {
+	currentlyStopped.clear();
+}
+
+bool BehaviourTree::EvaluationContext::setBreakpoint(const std::string& nodeId) {
+	return breakpoints_.insert(nodeId).second;
+}
+bool BehaviourTree::EvaluationContext::removeBreakpoint(const std::string& nodeId) {
+	return breakpoints_.erase(nodeId) > 0;
+}
 
 EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 	//callback_->GetGame()->SendTextMessage((node == nullptr ? "NULL" : node->name().c_str()), 0);
@@ -85,7 +98,15 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 	if (node == nullptr) // prevent attempts to tick a non-existant node/branch
 		return btFailure;
 
-	EvaluationResult result = node->tick(*this);
+	EvaluationResult result;
+	if (!node->wasStopped() && stoppedLastTime_ != node && breakpoints_.find(node->id()) != breakpoints_.end())
+	{
+		result = btBreakpoint;
+		stoppedLastTime_ = node;
+	}
+	else
+		result = node->tick(*this);
+
 	switch (result)
 	{
 	case btRunning:
@@ -94,6 +115,9 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 	case btSuccess:
 	case btFailure:
 		currentlyFinished.push_back(std::make_pair(node, result));
+		break;
+	case btBreakpoint:
+		currentlyStopped.push_back(node);
 		break;
 	default:
 		// unknown result
@@ -119,6 +143,8 @@ void BehaviourTree::EvaluationContext::finalize() {
 
 
 void BehaviourTree::Node::reset(const EvaluationContext& context) {
+	stoppedAt_ = 0;
+
 	for (auto it = children_.begin(); it != children_.end(); ++it) {
 		if(*it != nullptr) {
 			(*it)->reset(context);
@@ -140,16 +166,28 @@ void BehaviourTree::GenericNode::add(Node* node) {
 
 
 BehaviourTree::BehaviourTree()
-{
-
+	: breakpointReached_(false) {
 }
 
 void BehaviourTree::reset(EvaluationContext& context) {
 	context.reset();
 }
-void BehaviourTree::tick(EvaluationContext& context) {
-	context.initialize();
-	if (root_ != nullptr)
-		context.tickNode(root_.get());
-	context.finalize();
+bool BehaviourTree::tick(EvaluationContext& context) {
+	if (breakpointReached_) {
+		context.stoppedInitialize();
+		breakpointReached_ = false;
+	}	else {
+		context.initialize();
+	}
+
+	EvaluationResult finalResult = context.tickNode(root_.get());
+
+	if (finalResult == btBreakpoint) {
+		breakpointReached_ = true;
+		// we do not finalize, as we are also not going to initialize
+		return false;
+	}	else {
+		context.finalize();
+		return true;
+	}
 }
