@@ -22,7 +22,10 @@ EvaluationResult RoleSplitNode::tick(EvaluationContext& context)
 				context.setActiveRole(childIndex);
 				EvaluationResult childResult = context.tickNode(currentChild);
 				if (childResult == btBreakpoint)
+				{
+					context.setActiveRole(EvaluationContext::ALL_ROLES);
 					return stopAt(childIndex);
+				}
 
 				if (childResult == btRunning)
 					++runningCount_;
