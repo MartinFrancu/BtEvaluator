@@ -68,7 +68,6 @@ void BehaviourTree::EvaluationContext::reset() {
 
 void BehaviourTree::EvaluationContext::initialize() {
 	std::swap(previouslyRunning, currentlyRunning);
-	stoppedLastTime_ = nullptr;
 	currentlyRunning.clear();
 	currentlyFinished.clear();
 
@@ -99,10 +98,10 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 		return btFailure;
 
 	EvaluationResult result;
-	if (!node->wasStopped() && stoppedLastTime_ != node && breakpoints_.find(node->id()) != breakpoints_.end())
+	if (node->canBreak() && breakpoints_.find(node->id()) != breakpoints_.end())
 	{
 		result = btBreakpoint;
-		stoppedLastTime_ = node;
+		node->disableBreak();
 	}
 	else
 		result = node->tick(*this);
@@ -128,14 +127,20 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 }
 
 void BehaviourTree::EvaluationContext::finalize() {
+	for (auto finished : currentlyFinished) {
+		finished.first->enableBreak();
+	}
+
 	for (auto previousIt = previouslyRunning.begin(); previousIt != previouslyRunning.end(); ++previousIt) {
 		bool noLongerRunning = true;
 		for (auto currentIt = currentlyRunning.begin(); noLongerRunning && currentIt != currentlyRunning.end(); ++currentIt)
 			if (*currentIt == *previousIt)
 				noLongerRunning = false;
 
-		if (noLongerRunning)
+		if (noLongerRunning) {
 			(*previousIt)->reset(*this);
+			(*previousIt)->enableBreak();
+		}
 	}
 
 	setActiveRole(ALL_ROLES);

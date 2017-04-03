@@ -70,7 +70,6 @@ namespace BT {
 			void finalize();
 		private:
 			int currentRole_;
-			Node* stoppedLastTime_;
 			std::set<std::string> breakpoints_;
 			std::vector<springai::Unit*>* currentUnits_;
 			std::vector<springai::Unit*> allUnits_;
@@ -95,7 +94,7 @@ namespace BT {
 		public:
 			class Factory;
 
-			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0) {}
+			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0), canBreak_(true) {}
 			virtual ~Node() {}
 
 			const std::string& id() const { return id_; }
@@ -104,7 +103,9 @@ namespace BT {
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
 			virtual void reset(const EvaluationContext& context); // base implementation only resets children
 
-			bool wasStopped() { return stoppedAt() > 0; }
+			bool canBreak() { return canBreak_; }
+			void enableBreak() { canBreak_ = true; }
+			void disableBreak() { canBreak_ = false; }
 		protected:
 			unsigned int& stoppedAt() { return stoppedAt_; }
 			EvaluationResult stopAt(unsigned int index) { stoppedAt_ = index; return btBreakpoint; }
@@ -117,6 +118,7 @@ namespace BT {
 			std::string id_;
 			Node* parent_; // weak reference
 			unsigned int stoppedAt_;
+			bool canBreak_;
 		};
 
 		class LeafNode : public Node {

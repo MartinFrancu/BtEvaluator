@@ -111,34 +111,39 @@ void BtEvaluator::Initialize() {
 	sendLuaMessage("INITIALIZED");
 }
 
+void BtEvaluator::tickTree(Tree& tree) {
+	auto& behaviourTree(tree.first);
+	auto& context(tree.second);
+	behaviourTree.tick(context);
+
+	if (&tree.second == reportingContext) {
+		// UPDATE_STATES message
+		json states = json::object();
+		for (auto& finished : reportingContext->finished()) {
+			states[finished.first->id()] = nameOfEvaluationResult(finished.second);
+		}
+		for (auto& running : reportingContext->running()) {
+			states[running->id()] = nameOfEvaluationResult(btRunning);
+		}
+		for (auto& stopped : reportingContext->stopped()) {
+			states[stopped->id()] = nameOfEvaluationResult(btBreakpoint);
+		}
+
+		sendLuaMessage("UPDATE_STATES", json{
+			{ "id", reportingContext->treeInstanceId() },
+			{ "states", states }
+		});
+	}
+}
+
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
 	if (frame % 30 == 0) {
 		auto t1 = chrono::high_resolution_clock::now();
 		for (auto it(treeMap.begin()); it != treeMap.end(); ++it) {
-			auto& behaviourTree(it->second.first);
-			auto& context(it->second.second);
-			behaviourTree.tick(context);
+			tickTree(it->second);
 		}
 
-		if (reportingContext) {
-			// UPDATE_STATES message
-			json states = json::object();
-			for (auto& finished : reportingContext->finished()) {
-				states[finished.first->id()] = nameOfEvaluationResult(finished.second);
-			}
-			for (auto& running : reportingContext->running()) {
-				states[running->id()] = nameOfEvaluationResult(btRunning);
-			}
-			for (auto& stopped : reportingContext->stopped()) {
-				states[stopped->id()] = nameOfEvaluationResult(btBreakpoint);
-			}
-
-			sendLuaMessage("UPDATE_STATES", json{
-				{ "id", reportingContext->treeInstanceId() },
-				{ "states", states }
-			});
-		}
 		auto t2 = chrono::high_resolution_clock::now();
 		auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
 		lua->CallUI(("BETS LOG Tick duration in ms: " + to_string(duration)).c_str(), -1);
@@ -217,6 +222,14 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					auto iterator = treeMap.find(instIdData.get<string>());
 					if (iterator != treeMap.end()) {
 						iterator->second.second.reset();
+					}
+				}
+				return;
+			} else if (messageCode == "TICK_TREES") {
+				for (auto& instIdData : data) {
+					auto iterator = treeMap.find(instIdData.get<string>());
+					if (iterator != treeMap.end()) {
+						tickTree(iterator->second);
 					}
 				}
 				return;
