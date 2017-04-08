@@ -93,7 +93,6 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new RepeatNode::Factory(),
 		new RoleSplitNode::Factory(),
 		new ReferenceNode::Factory(callback),
-		new EchoCommand::Factory(callback),
 		new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
 		new GroupReporter::Factory(callback),
