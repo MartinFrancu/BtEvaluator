@@ -97,7 +97,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new WaitNode::Factory(callback),
 		new GroupReporter::Factory(callback),
 		new LuaCommand::Factory(callback),
-		new LuaExpression::Factory(callback)
+		new LuaExpression::ConditionFactory(callback)
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}

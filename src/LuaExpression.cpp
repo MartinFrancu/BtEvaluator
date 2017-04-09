@@ -37,7 +37,7 @@ void LuaExpression::reset(const EvaluationContext& context) {
 	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() },{ "roleId", context.activeRole() } });
 }
 
-std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::Factory::parameters() const {
+std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::ConditionFactory::parameters() const {
 	return{
 		BehaviourTree::ParameterDefinition{
 			"expression",
@@ -54,7 +54,7 @@ std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::Factory::para
 	};
 }
 
-std::unique_ptr<BehaviourTree::Node> BT::LuaExpression::Factory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters, std::vector<std::unique_ptr<Node>>& children) const {
+std::unique_ptr<BehaviourTree::Node> BT::LuaExpression::ConditionFactory::createNode(const string& id, const map<string, ParameterValuePlaceholder>& parameters, std::vector<std::unique_ptr<Node>>& children) const {
 	if (children.size() > 2)
 		throw "Invalid number of children.";
 
