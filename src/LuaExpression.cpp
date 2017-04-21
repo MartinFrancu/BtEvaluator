@@ -41,7 +41,7 @@ std::vector<BehaviourTree::ParameterDefinition> BT::LuaExpression::ConditionFact
 	return{
 		BehaviourTree::ParameterDefinition{
 			"expression",
-			"expression",
+			"longString",
 			"editBox",
 			"true"
 		},
