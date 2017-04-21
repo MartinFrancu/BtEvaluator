@@ -12,6 +12,6 @@ std::unique_ptr<BehaviourTree::LeafNode> ConstantNode::Factory::createNode(
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
 	return std::unique_ptr<BehaviourTree::LeafNode>(
-		new ConstantNode(id, _resultValue)
+		new ConstantNode(id, _resultValue, _tooltip)
 	);
 }

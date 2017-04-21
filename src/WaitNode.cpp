@@ -49,3 +49,7 @@ std::unique_ptr<BehaviourTree::LeafNode> WaitNode::Factory::createNode(
 		new WaitNode(id, callback_, time)
 		);
 }
+
+ std::string WaitNode::Factory::tooltip() const { 
+     return "Wait node returns 'Running' state for next 'time' seconds, and then succeeds. "; 
+ }

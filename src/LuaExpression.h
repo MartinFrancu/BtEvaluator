@@ -28,6 +28,7 @@ namespace BT {
 				const std::map<std::string, ParameterValuePlaceholder>& parameters,
 				std::vector<std::unique_ptr<Node>>& children
 				) const override;
+			virtual std::string tooltip() const override;
 			virtual bool unlimitedChildren() const { return false; }
 			virtual int defaultWidth() const override { return 210; };
 			virtual std::vector<BehaviourTree::ChildDefinition> children() const { return{ BehaviourTree::ChildDefinition(), BehaviourTree::ChildDefinition() }; }

@@ -88,8 +88,8 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
 		new SequenceNode::Factory(),
 		new ConditionNode::Factory(),
-		new ConstantNode::Factory(btSuccess),
-		new ConstantNode::Factory(btFailure),
+		new ConstantNode::Factory(btSuccess, "Immediately returns 'Success'. "),
+		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
 		new RepeatNode::Factory(),
 		new RoleSplitNode::Factory(),
 		new ReferenceNode::Factory(callback),

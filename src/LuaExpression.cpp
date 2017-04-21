@@ -80,3 +80,10 @@ string BT::LuaExpression::runLuaScript(json params) const {
 	params["id"] = id();
 	return lua_->CallUI(("BETS EXPRESSION " + params.dump()).c_str(), -1);
 }
+
+string BT::LuaExpression::ConditionFactory::tooltip() const {
+	return
+		"LuaCondition is binary node, which evaluates the given expression. "
+		"If its true then executes the first child, otherwise the second one. "
+		"If the 'repeat' is checked then the expression is evaluated every tick. ";
+}

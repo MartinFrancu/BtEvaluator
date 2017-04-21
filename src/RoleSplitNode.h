@@ -30,6 +30,7 @@ namespace BT
 				const std::string& id, 
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 				) const override;
+			std::string tooltip() const override;
 		};
 	private:
 		EvaluationResult waitFor_;
