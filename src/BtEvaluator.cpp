@@ -20,7 +20,7 @@
 #include "ConstantNode.h"
 #include "RepeatNode.h"
 #include "RoleSplitNode.h"
-#include "ReferenceNode.h"
+#include "SubtreeNode.h"
 #include "SpringCommand.h"
 #include "EchoCommand.h"
 #include "WaitNode.h"
@@ -92,7 +92,8 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
 		new RepeatNode::Factory(),
 		new RoleSplitNode::Factory(),
-		new ReferenceNode::Factory(callback),
+		new SubtreeNode::Factory(callback),
+		new SubtreeNode::ReferenceFactory(callback),
 		new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
 		new GroupReporter::Factory(callback),
