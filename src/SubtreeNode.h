@@ -8,7 +8,7 @@ namespace BT {
 	class SubtreeNode : public BehaviourTree::UnaryNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
-		SubtreeNode(const std::string& id, springai::OOAICallback* callback, nlohmann::json parameters = {});
+		SubtreeNode(const std::string& id, springai::OOAICallback* callback, std::string projectSwitch, nlohmann::json parameters = {});
 		virtual ~SubtreeNode() {}
 
 		std::string name() override { return "SubtreeNode"; }
@@ -52,6 +52,7 @@ namespace BT {
 		};
 	private:
 		bool subtreeStarted_;
+		std::string projectSwitch_;
 		springai::Lua* lua_;
 		nlohmann::json parameters_;
 	};
