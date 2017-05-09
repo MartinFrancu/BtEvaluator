@@ -63,7 +63,7 @@ std::unique_ptr<BehaviourTree::UnaryNode> SubtreeNode::Factory::createNode(
 	const std::string& id,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 	) const {
-	json paramJson;
+	json paramJson = json::object();
 
 	std::string variableName = "x";
 	auto variableIterator = parameters.find("var");
@@ -84,7 +84,7 @@ std::unique_ptr<BehaviourTree::UnaryNode> SubtreeNode::ReferenceFactory::createN
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 ) const {
 	std::string projectSwitch;
-	json paramJson;
+	json paramJson = json::object();
 
 	for (auto it = parameters.begin(); it != parameters.end(); ++it) {
 		if (it->first == "project")
