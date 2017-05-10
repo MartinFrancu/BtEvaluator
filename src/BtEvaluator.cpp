@@ -92,11 +92,11 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
 		new RepeatNode::Factory(),
 		new RoleSplitNode::Factory(),
-		new SubtreeNode::Factory(callback),
+		//new SubtreeNode::Factory(callback),
 		new SubtreeNode::ReferenceFactory(callback),
-		new FlipSensor::Factory(callback),
+		//new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
-		new GroupReporter::Factory(callback),
+		//new GroupReporter::Factory(callback),
 		new LuaCommand::Factory(callback),
 		new LuaExpression::ConditionFactory(callback)
 	}) {
