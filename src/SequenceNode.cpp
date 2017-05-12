@@ -41,7 +41,7 @@ std::unique_ptr<BehaviourTree::GenericNode> SequenceNode::Factory::createNode(
 
  std::string SequenceNode::Factory::tooltip() const { 
      return 
-         "Sequence node executes all the children sequencially from top to bottom. "
+         "Sequence node executes all the children sequentially from top to bottom. "
          "It will stop executing its children when one of the children fails. In that case, the Sequence fails. "
          "If all the Sequence's children succeed, then the Sequence succeeds. "; 
  }
