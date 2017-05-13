@@ -113,7 +113,7 @@ dir .\BETS_readme.* | % {
 "" | Print
 
 
-Get-ChildItem -Name -Path ./tmp_BETS -Recurse  > "./tmp_BETS/BETS_filelist.txt"
+Get-ChildItem -Name -File -Path ./tmp_BETS -Recurse  > "./tmp_BETS/BETS_filelist.txt"
 
 
 "-- Packing into archive" | Print
