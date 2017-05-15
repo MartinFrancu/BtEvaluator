@@ -93,3 +93,12 @@ std::unique_ptr<BehaviourTree::GenericNode> RoleSplitNode::Factory::createNode(
 		new RoleSplitNode(id, waitFor)
 	);
 }
+
+std::string RoleSplitNode::Factory::tooltip() const {
+	return 
+		"RoleSplitNode can have arbitrary children. "
+		"It splits the units according to the roles of the current tree. "
+		"It means that the first children will be executed only with units associated to the first role. "
+		"The second will gets executed with units associated to the second role, and so on. "
+		"All the children are executed in parallel and the result state of the RoleSplitNode is determined by its 'mode'. ";
+}

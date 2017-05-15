@@ -22,3 +22,7 @@ std::unique_ptr<BehaviourTree::LeafNode> FlipSensor::Factory::createNode(
 		new FlipSensor(id, callback_)
 	);
 }
+
+std::string FlipSensor::Factory::tooltip() const {
+	return "FlipSensor first returns 'Success'. Every consecutive tick returns the negation of last returned state. ";
+}

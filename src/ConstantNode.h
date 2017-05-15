@@ -8,8 +8,8 @@ namespace BT {
 	class ConstantNode : public BehaviourTree::LeafNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
-		ConstantNode(const std::string& id, EvaluationResult resultValue) :
-			LeafNode(id), _resultValue(resultValue) {}
+		ConstantNode(const std::string& id, EvaluationResult resultValue, std::string tooltip) :
+			LeafNode(id), _resultValue(resultValue), tooltip_(tooltip) {}
 		virtual ~ConstantNode() {}
 
 		std::string name() override { return "ConstantNode"; }
@@ -17,8 +17,8 @@ namespace BT {
 
 		class Factory : public LeafNode::Factory {
 		public:
-			Factory(EvaluationResult resultValue)
-				: LeafNode::Factory(), _resultValue(resultValue) {}
+			Factory(EvaluationResult resultValue, std::string tooltip)
+				: LeafNode::Factory(), _resultValue(resultValue), _tooltip(tooltip) {}
 
 			int defaultHeight() const override { return 30; };
 			int defaultWidth() const override { return 80; };
@@ -28,11 +28,14 @@ namespace BT {
 				const std::string& id,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const override;
+			std::string tooltip() const override { return _tooltip; }
 		private:
 			EvaluationResult _resultValue;
+			const std::string _tooltip;
 		};
 	private:
 		EvaluationResult _resultValue;
+		const std::string tooltip_;
 	};
 }
 

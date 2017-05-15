@@ -17,3 +17,7 @@ std::unique_ptr<BehaviourTree::UnaryNode> RepeatNode::Factory::createNode(
 		new RepeatNode(id)
 	);
 }
+
+ std::string RepeatNode::Factory::tooltip() const { 
+    return "Repeat node is unary node, which always evaluates its only child and returns 'Running' state. "; 
+ }

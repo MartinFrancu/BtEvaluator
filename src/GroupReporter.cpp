@@ -47,3 +47,7 @@ std::unique_ptr<BehaviourTree::LeafNode> GroupReporter::Factory::createNode(
 		new GroupReporter(id, callback_, reportCount)
 	);
 }
+
+std::string GroupReporter::Factory::tooltip() const {
+	return "GroupReporter node echoes the unit IDs and also the current role name if any. Then returns 'Success'. ";
+}

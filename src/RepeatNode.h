@@ -29,6 +29,8 @@ namespace BT {
 				const std::string& id,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
 			) const override;
+
+			virtual std::string tooltip() const override;
 		};
 	};
 }

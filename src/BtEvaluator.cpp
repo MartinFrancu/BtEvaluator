@@ -20,7 +20,7 @@
 #include "ConstantNode.h"
 #include "RepeatNode.h"
 #include "RoleSplitNode.h"
-#include "ReferenceNode.h"
+#include "SubtreeNode.h"
 #include "SpringCommand.h"
 #include "EchoCommand.h"
 #include "WaitNode.h"
@@ -35,6 +35,7 @@
 #include <chrono>
 
 #include <json.hpp>
+#include "SelectorNode.h"
 using json = nlohmann::json;
 using namespace std;
 
@@ -87,18 +88,19 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
 		new SequenceNode::Factory(),
+		new SelectorNode::Factory(),
 		new ConditionNode::Factory(),
-		new ConstantNode::Factory(btSuccess),
-		new ConstantNode::Factory(btFailure),
+		new ConstantNode::Factory(btSuccess, "Immediately returns 'Success'. "),
+		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
 		new RepeatNode::Factory(),
 		new RoleSplitNode::Factory(),
-		new ReferenceNode::Factory(callback),
-		new EchoCommand::Factory(callback),
-		new FlipSensor::Factory(callback),
+		//new SubtreeNode::Factory(callback),
+		new SubtreeNode::ReferenceFactory(callback),
+		//new FlipSensor::Factory(callback),
 		new WaitNode::Factory(callback),
-		new GroupReporter::Factory(callback),
+		//new GroupReporter::Factory(callback),
 		new LuaCommand::Factory(callback),
-		new LuaExpression::Factory(callback)
+		new LuaExpression::ConditionFactory(callback)
 	}) {
 		nodeFactories[factory->typeName()] = std::unique_ptr<const BehaviourTree::Node::Factory>(factory);
 	}
@@ -150,42 +152,6 @@ void BtEvaluator::update(int frame) {
 	}
 }
 
-/*
-void BtEvaluator::loadTree() {
-	auto mainSequence = new SequenceNode();
-	{
-		mainSequence->add(new UnitReporter(callback));
-		/*
-		auto brancher = new ConditionNode(false);
-		{
-		  auto condition = new FlipSensor(callback);
-		  auto branchTrue = new SequenceNode();
-		  {
-			auto firstEcho = new EchoCommand(callback, "true branch");
-			branchTrue->add(firstEcho);
-			auto waiting = new WaitNode(callback, 6);
-			branchTrue->add(waiting);
-			auto lastEcho = new EchoCommand(callback, "true branch ends");
-			branchTrue->add(lastEcho);
-		  }
-		  auto branchFalse = new SequenceNode();
-		  {
-			auto firstEcho = new EchoCommand(callback, "false branch");
-			branchFalse->add(firstEcho);
-			auto waiting = new WaitNode(callback, 3);
-			branchFalse->add(waiting);
-			auto lastEcho = new EchoCommand(callback, "false branch ends");
-			branchFalse->add(lastEcho);
-		  }
-		  brancher->setChildren(condition, branchTrue, branchFalse);
-		}
-		mainSequence->add(brancher);
-		*//*
-	}
-	behaviourTree.setRoot(mainSequence);
-}
-*/
-
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
 	std::string message = "BETS " + messageType;
 	//game->SendTextMessage(message.c_str(), -1);
@@ -232,6 +198,9 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 						tickTree(iterator->second);
 					}
 				}
+				return;
+			} else if (messageCode == "EXECUTE") {
+				system(data.get<string>().c_str());
 				return;
 			}
 

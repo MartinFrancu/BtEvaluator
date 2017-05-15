@@ -10,6 +10,8 @@ temporary folder structure which mimicks the nota structure and copy files of
 BtEvaluator to corresponding places and then checkout the BETS repositor,
 again to corresponding place.#>
 
+$baseLocation = Get-Location
+
 "Date: " + (Get-Date -format "yyyy-MM-dd
 ") | Out-File "BETS_composer.log" -Encoding ASCII
 
@@ -17,18 +19,17 @@ function Print {
   process {
     $input | % {
       Write-Host $_
-      $_ | Out-File "BETS_composer.log" -append -Encoding UTF8 | Out-Null
+      $_ | Out-File (Join-Path -Path $baseLocation -ChildPath "BETS_composer.log") -append -Encoding UTF8 | Out-Null
     }
   }
 }
 function Log {
   process {
-    $input | Out-File "BETS_composer.log" -append -Encoding UTF8 | Out-Null
+    $input | Out-File (Join-Path -Path $baseLocation -ChildPath "BETS_composer.log") -append -Encoding UTF8 | Out-Null
   }
 }
 
 $betsArchiveName = Get-Date -format "BETS_yyyy-MM-dd.\zip"
-$baseLocation = Get-Location
 
 "Composing: " + $betsArchiveName | Print
 "" | Print
@@ -84,7 +85,9 @@ Copy-Item $springSource\AI\Skirmish\BtEvaluator\data\*.lua .\tmp_BETS\SpringData
 Set-Location .\tmp_BETS\SpringData\LuaUI
 
 git clone --recursive https://github.com/MartinFrancu/BETS.git Widgets\ 2>&1 | Log
+Remove-Item .\Widgets\.git -recurse -force | Log
 Remove-Item .\Widgets\.gitignore -force | Log
+
 
 Set-Location $baseLocation
 
@@ -112,6 +115,17 @@ dir .\BETS_readme.* | % {
 
 "" | Print
 
+
+
+"-- Composing filelist:" | Print
+
+Set-Location .\tmp_BETS
+
+Get-ChildItem -Path . -Recurse | Where { !$_.PSIsContainer } | foreach { (($_.Fullname | Resolve-Path -Relative) -replace "\\", "/") -replace "^./", "" } | Out-File "BETS_filelist.txt" -Encoding ASCII
+
+Set-Location $baseLocation
+
+"" | Print
 
 
 "-- Packing into archive" | Print
