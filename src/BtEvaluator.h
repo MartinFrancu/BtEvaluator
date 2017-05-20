@@ -47,6 +47,8 @@ namespace BT {
 		void sendLuaMessage(const std::string& messageType) const;
 		void sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const;
 		void receiveLuaMessage(const std::string&);
+		void sendSuccessResponse() const;
+		void sendFailureResponse(const std::string& error) const;
 
 		void broadcastNodeDefinitions() const;
 		std::unique_ptr<BehaviourTree::Node> createTreeFromJSON(const nlohmann::json& tree);

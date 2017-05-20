@@ -214,17 +214,27 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					treeMap.emplace(instanceId, make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback, instanceId)));
 				}
 				auto& treeContextPair(treeMap.at(instanceId));
-				treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
-				treeContextPair.second.clear();
+				
+				try {
+					treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
+					treeContextPair.second.clear();
+					sendSuccessResponse();
+				}catch(const std::exception& e) {
+					sendFailureResponse("Failed to create tree: " + string(e.what()));
+					return;
+				}
 			} else if (messageCode == "REPORT_TREE") {
 				auto treeIterator = treeMap.find(instanceId);
 				if (treeIterator == treeMap.end()) {
 					reportingContext = nullptr;
-					return; // TODO: return RESPONSE
+					sendFailureResponse("Failed to report tree " + instanceId);
+					return;
 				}
 				reportingContext = &treeIterator->second.second;
+				sendSuccessResponse();
 			} else if (messageCode == "ASSIGN_UNITS") {
 				auto iterator = treeMap.find(instanceId);
+
 				if (iterator != treeMap.end()) {
 					int roleId = data["role"];
 					std::vector<springai::Unit*> units = callback->GetSelectedUnits(); // we unfortunately don't have a way to translate units ids to springai:Unit*, so we cannot take units as a parameter
@@ -235,8 +245,11 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					}
 					iterator->second.second.reset();
 					iterator->second.second.setUnits(roleId, units);
-				} else
-					return; // TODO: return RESPONSE
+					sendSuccessResponse();
+				} else {
+					sendFailureResponse("Failed to assign units to tree " + instanceId);
+					return;
+				}
 			}	else if (messageCode == "REMOVE_TREE") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
@@ -244,8 +257,11 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 						reportingContext = nullptr;
 					}
 					treeMap.erase(iterator);
-				} else
-					return; // TODO: return RESPONSE
+					sendSuccessResponse();
+				} else {
+					sendFailureResponse("Failed to remove tree: " + instanceId);
+					return;
+				}
 			}	else if (messageCode == "SET_BREAKPOINT") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
@@ -264,6 +280,14 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
 		}
 	}
+}
+
+void BtEvaluator::sendSuccessResponse() const {
+	sendLuaMessage("RESPONSE", json{ { "result", true } });
+}
+
+void BtEvaluator::sendFailureResponse(const std::string& error) const {
+	sendLuaMessage("RESPONSE", json{ { "result", false }, { "error", error.c_str() } });
 }
 
 void BtEvaluator::broadcastNodeDefinitions() const {
@@ -320,7 +344,7 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 
 	auto factoryIterator = nodeFactories.find(type);
 	if (factoryIterator == nodeFactories.end()) {
-		return nullptr;
+		throw std::invalid_argument("Factory for node type " + type + " doesn't exist");
 	}
 	auto& factory = factoryIterator->second;
 
@@ -338,7 +362,6 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 			children.push_back(createTreeFromJSON(child));
 		}
 	}
-
 	return factory->createNode(tree.find("id") != tree.end() ? tree["id"].get<std::string>() : std::to_string(++nodeIdCounter), parameters, children);
 }
 
