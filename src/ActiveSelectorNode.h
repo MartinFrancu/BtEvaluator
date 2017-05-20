@@ -17,7 +17,7 @@ namespace BT {
 		public:
 			Factory() : GenericNode::Factory() {}
 
-			std::string typeName() const override { return "active selector"; }
+			std::string typeName() const override { return "active-selector"; }
 		protected:
 			std::unique_ptr<GenericNode> createNode(
 				const std::string& id,
