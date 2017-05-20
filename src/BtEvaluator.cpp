@@ -36,6 +36,7 @@
 
 #include <json.hpp>
 #include "SelectorNode.h"
+#include "ActiveSelectorNode.h"
 using json = nlohmann::json;
 using namespace std;
 
@@ -89,6 +90,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
 		new SequenceNode::Factory(),
 		new SelectorNode::Factory(),
+		new ActiveSelectorNode::Factory(),
 		new ConditionNode::Factory(),
 		new ConstantNode::Factory(btSuccess, "Immediately returns 'Success'. "),
 		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
