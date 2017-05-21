@@ -142,16 +142,21 @@ void BtEvaluator::tickTree(Tree& tree) {
 
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
-	if (frame % 30 == 0) {
-		auto t1 = chrono::high_resolution_clock::now();
-		for (auto it(treeMap.begin()); it != treeMap.end(); ++it) {
+	const int updatePeriod = 30;
+
+	//auto t1 = chrono::high_resolution_clock::now();
+	int frameOffset = frame % updatePeriod;
+	
+	int i = 0;
+	for (auto it(treeMap.begin()); it != treeMap.end(); ++it, ++i) {
+		if (i % updatePeriod == frameOffset) {
 			tickTree(it->second);
 		}
-
-		auto t2 = chrono::high_resolution_clock::now();
-		auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-		lua->CallUI(("BETS LOG Tick duration in ms: " + to_string(duration)).c_str(), -1);
 	}
+
+	//auto t2 = chrono::high_resolution_clock::now();
+	//auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
+	//lua->CallUI(("BETS LOG Tick duration in ms: " + to_string(duration)).c_str(), -1);
 }
 
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
@@ -179,7 +184,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
 		broadcastNodeDefinitions();
-	} else if(messageCode == "REINITIALIZE") {
+	} else if (messageCode == "REINITIALIZE") {
 		Initialize();
 	} else {
 		try {
@@ -214,12 +219,12 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					treeMap.emplace(instanceId, make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback, instanceId)));
 				}
 				auto& treeContextPair(treeMap.at(instanceId));
-				
+
 				try {
 					treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
 					treeContextPair.second.clear();
 					sendSuccessResponse();
-				}catch(const std::exception& e) {
+				} catch (const std::exception& e) {
 					sendFailureResponse("Failed to create tree: " + string(e.what()));
 					return;
 				}
@@ -250,7 +255,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					sendFailureResponse("Failed to assign units to tree " + instanceId);
 					return;
 				}
-			}	else if (messageCode == "REMOVE_TREE") {
+			} else if (messageCode == "REMOVE_TREE") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					if (reportingContext == &iterator->second.second) {
@@ -262,13 +267,13 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					sendFailureResponse("Failed to remove tree: " + instanceId);
 					return;
 				}
-			}	else if (messageCode == "SET_BREAKPOINT") {
+			} else if (messageCode == "SET_BREAKPOINT") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					std::string nodeId = data["nodeId"];
 					iterator->second.second.setBreakpoint(nodeId);
 				}
-			}	else if (messageCode == "REMOVE_BREAKPOINT") {
+			} else if (messageCode == "REMOVE_BREAKPOINT") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					std::string nodeId = data["nodeId"];
@@ -368,22 +373,25 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 int BtEvaluator::HandleEvent(int event, const void* data) {
 
 	switch (event) {
-		case EVENT_UPDATE: {
-			// every frame UPDATE_EVENT is called			
-			const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
-			update(updateData->frame);
-		} break;
-		case EVENT_LUA_MESSAGE: {
-			std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
-			//game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
-			receiveLuaMessage(message);
+	case EVENT_UPDATE:
+	{
+		// every frame UPDATE_EVENT is called			
+		const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
+		update(updateData->frame);
+	} break;
+	case EVENT_LUA_MESSAGE:
+	{
+		std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
+		//game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
+		receiveLuaMessage(message);
 
-			//auto units = callback->GetSelectedUnits();
-			//context.setUnits(units);
-		} break;
-		default: {
-			//game->SendTextMessage("Default Event ", 0);
-		} break;
+		//auto units = callback->GetSelectedUnits();
+		//context.setUnits(units);
+	} break;
+	default:
+	{
+		//game->SendTextMessage("Default Event ", 0);
+	} break;
 	}
 
 	// signal: everything went OK
