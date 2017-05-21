@@ -4,7 +4,7 @@ using namespace BT;
 
 EvaluationResult ConstantNode::tick(EvaluationContext& context)
 {
-	return _resultValue;
+	return notStopped(_resultValue);
 }
 
 std::unique_ptr<BehaviourTree::LeafNode> ConstantNode::Factory::createNode(

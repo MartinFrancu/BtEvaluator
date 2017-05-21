@@ -57,6 +57,8 @@ void BehaviourTree::EvaluationContext::clear() {
 	reset();
 }
 void BehaviourTree::EvaluationContext::reset() {
+	for (auto currentIt = currentlyStopped.begin(); currentIt != currentlyStopped.end(); ++currentIt)
+		(*currentIt)->reset(*this);
 	for (auto currentIt = currentlyRunning.begin(); currentIt != currentlyRunning.end(); ++currentIt)
 		(*currentIt)->reset(*this);
 
@@ -99,10 +101,7 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 
 	EvaluationResult result;
 	if (node->canBreak() && breakpoints_.find(node->id()) != breakpoints_.end())
-	{
-		result = btBreakpoint;
-		node->disableBreak();
-	}
+		result = node->stopAtEntry();
 	else
 		result = node->tick(*this);
 
@@ -127,9 +126,11 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 }
 
 void BehaviourTree::EvaluationContext::finalize() {
+	/*
 	for (auto finished : currentlyFinished) {
 		finished.first->enableBreak();
 	}
+	*/
 
 	for (auto previousIt = previouslyRunning.begin(); previousIt != previouslyRunning.end(); ++previousIt) {
 		bool noLongerRunning = true;
@@ -139,7 +140,7 @@ void BehaviourTree::EvaluationContext::finalize() {
 
 		if (noLongerRunning) {
 			(*previousIt)->reset(*this);
-			(*previousIt)->enableBreak();
+			//(*previousIt)->enableBreak();
 		}
 	}
 

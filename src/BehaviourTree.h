@@ -94,7 +94,7 @@ namespace BT {
 		public:
 			class Factory;
 
-			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0), canBreak_(true) {}
+			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0)/*, canBreak_(true)*/ {}
 			virtual ~Node() {}
 
 			const std::string& id() const { return id_; }
@@ -103,9 +103,12 @@ namespace BT {
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
 			virtual void reset(const EvaluationContext& context); // base implementation only resets children
 
-			bool canBreak() { return canBreak_; }
-			void enableBreak() { canBreak_ = true; }
-			void disableBreak() { canBreak_ = false; }
+			bool canBreak() { return stoppedAt() == 0; }
+			EvaluationResult stopAtEntry() { return stopAt(-1); }
+			// // the following were available to provide breakpoint functionality, where a breakpoint would stop on a node when first reached and would not fire again until the node got reset or finished running
+			// // if this is ever to be reactivated, the canBreak_ has be to properly resetted during Context:reset
+			// void enableBreak() { canBreak_ = true; }
+			// void disableBreak() { canBreak_ = false; }
 		protected:
 			unsigned int& stoppedAt() { return stoppedAt_; }
 			EvaluationResult stopAt(unsigned int index) { stoppedAt_ = index; return btBreakpoint; }
@@ -118,7 +121,7 @@ namespace BT {
 			std::string id_;
 			Node* parent_; // weak reference
 			unsigned int stoppedAt_;
-			bool canBreak_;
+			// bool canBreak_;
 		};
 
 		class LeafNode : public Node {

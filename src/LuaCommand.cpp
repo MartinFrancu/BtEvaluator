@@ -35,6 +35,7 @@ EvaluationResult LuaCommand::execute(const EvaluationContext& context) {
 }
 
 void LuaCommand::reset(const EvaluationContext& context) {
+	Node::reset(context);
 	runLuaScript(json{ {"func", "RESET"}, { "treeId", context.treeInstanceId() },{ "roleId", context.activeRole() } });
 }
 
