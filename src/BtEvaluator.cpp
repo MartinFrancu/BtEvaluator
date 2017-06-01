@@ -153,20 +153,14 @@ void BtEvaluator::update(int frame) {
 			tickTree(it->second);
 		}
 	}
-
-	//auto t2 = chrono::high_resolution_clock::now();
-	//auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-	//lua->CallUI(("BETS LOG Tick duration in ms: " + to_string(duration)).c_str(), -1);
 }
 
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
 	std::string message = "BETS " + messageType;
-	//game->SendTextMessage(message.c_str(), -1);
 	lua->CallUI(message.c_str(), -1);
 }
 void BtEvaluator::sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const {
 	std::string message = "BETS " + messageType + " " + data.dump();
-	//game->SendTextMessage(message.c_str(), -1);
 	lua->CallUI(message.c_str(), -1);
 }
 
@@ -207,7 +201,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				}
 				return;
 			} else if (messageCode == "EXECUTE") {
-				system(data.get<string>().c_str());
+				//system(data.get<string>().c_str()); 
 				return;
 			}
 
@@ -281,7 +275,6 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				}
 			}
 		} catch (std::logic_error err) {
-			// FIXME: logic_error can be raised by other things than the json library
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
 		}
 	}
@@ -382,11 +375,9 @@ int BtEvaluator::HandleEvent(int event, const void* data) {
 	case EVENT_LUA_MESSAGE:
 	{
 		std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
-		//game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
+
 		receiveLuaMessage(message);
 
-		//auto units = callback->GetSelectedUnits();
-		//context.setUnits(units);
 	} break;
 	default:
 	{
