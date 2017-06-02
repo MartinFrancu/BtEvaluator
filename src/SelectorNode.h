@@ -5,6 +5,9 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+	/**
+	 * Node the executes the first child that doesn't fail.
+	 */
 	class SelectorNode : public BehaviourTree::GenericNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:

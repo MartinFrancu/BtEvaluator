@@ -5,12 +5,16 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+
+	/**
+	 * Ternary node where the result of the first child determines if second or third child will be ticked.
+	 */
 	class ConditionNode : public BehaviourTree::TernaryNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
 		ConditionNode(const std::string& id, bool conditionRepeatable) :
 			TernaryNode(id),
-			conditionRepeatable_(conditionRepeatable),
+			conditionRepeatable_(conditionRepeatable), // reevaluate 1st on each tick
 			lastResult_(btUndefined) {}
 		virtual ~ConditionNode() {}
 

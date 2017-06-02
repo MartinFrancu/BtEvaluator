@@ -4,6 +4,9 @@
 #include "SpringCommand.h"
 
 namespace BT {
+	/**
+	 * Node running for a specified number of seconds. It then succeeds
+	 */
 	class WaitNode : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:

@@ -5,6 +5,10 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+
+	/**
+	 * Node that begins executing again, once its child return a result.
+	 */
 	class RepeatNode : public BehaviourTree::UnaryNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:

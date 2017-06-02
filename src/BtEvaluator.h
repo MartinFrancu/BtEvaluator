@@ -1,5 +1,3 @@
-/* This file is part of the Spring engine (GPL v2 or later), see LICENSE.html */
-
 #ifndef _BTEVALUATOR_H
 #define _BTEVALUATOR_H
 
@@ -14,9 +12,7 @@ namespace BT {
 
 
 	/**
-	 * This is the main C++ entry point of this AI.
-	 *
-	 * @author	Robin Vobruba <hoijui.quaero@gmail.com>
+	 * This is the main entry point of the BtEvaluator module. It communicates with the Lua part and ticks the trees.
 	 */
 	class BtEvaluator {
 		typedef std::map<std::string, BT::SpringCommand> CommandMap;
@@ -35,15 +31,10 @@ namespace BT {
 
 		BehaviourTree::EvaluationContext* reportingContext;
 		TreeMap treeMap;
-
-		//BehaviourTree behaviourTree;
-		//BehaviourTree::EvaluationContext context;
-
+		
 		void tickTree(Tree& tree);
 		void update(int frame);
-
-		//SpringCommand* resolveCommand(const std::string&) const;
-
+		
 		void sendLuaMessage(const std::string& messageType) const;
 		void sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const;
 		void receiveLuaMessage(const std::string&);

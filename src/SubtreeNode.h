@@ -5,6 +5,9 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+	/**
+	 * The node referencing and executing an another tree.
+	 */
 	class SubtreeNode : public BehaviourTree::UnaryNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:

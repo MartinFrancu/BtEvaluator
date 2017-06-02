@@ -5,6 +5,9 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+	/**
+	 * Selector that actively checks if it can switch to a higher priority child
+	 */
 	class ActiveSelectorNode : public BehaviourTree::GenericNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:

@@ -4,6 +4,10 @@
 #include "SpringCommand.h"
 
 namespace BT {
+	/**
+	 * Deprecated.
+	 * Print a message to the Spring console
+	 */
 	class EchoCommand : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:

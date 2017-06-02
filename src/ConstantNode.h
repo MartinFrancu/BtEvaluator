@@ -5,6 +5,10 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+
+	/**
+	 * Leaf node that contains no logic and only return a predefined result
+	 */
 	class ConstantNode : public BehaviourTree::LeafNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:

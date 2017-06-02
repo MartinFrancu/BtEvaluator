@@ -6,6 +6,10 @@
 #include "json.hpp"
 
 namespace BT {
+	/**
+	 * A class factory creating new instances of the nodes. 
+	 * Every concrete implementation of the Node class need to contain a Factory implementaion.
+	 */
 	class BehaviourTree::Node::Factory {
 	public:
 		struct ParameterValuePlaceholder {
@@ -26,6 +30,8 @@ namespace BT {
 			) const = 0;
 
 		virtual std::string typeName() const = 0;
+
+		// node properties for BtCreator widget
 		virtual int defaultHeight() const { return 60; };
 		virtual int defaultWidth() const { return 110; };
 		virtual std::string tooltip() const { return "Node '" + typeName() + "'"; };
