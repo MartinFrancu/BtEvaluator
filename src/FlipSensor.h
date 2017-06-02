@@ -4,6 +4,10 @@
 #include "SpringCommand.h"
 
 namespace BT {
+	/**
+	 * Debug node
+	 * Returns different result on each tick.
+	 */
 	class FlipSensor : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:

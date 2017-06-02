@@ -36,6 +36,7 @@
 
 #include <json.hpp>
 #include "SelectorNode.h"
+#include "ActiveSelectorNode.h"
 using json = nlohmann::json;
 using namespace std;
 
@@ -89,6 +90,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 	for (auto factory : std::initializer_list<BehaviourTree::Node::Factory*>{
 		new SequenceNode::Factory(),
 		new SelectorNode::Factory(),
+		//new ActiveSelectorNode::Factory(),
 		new ConditionNode::Factory(),
 		new ConstantNode::Factory(btSuccess, "Immediately returns 'Success'. "),
 		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
@@ -140,26 +142,25 @@ void BtEvaluator::tickTree(Tree& tree) {
 
 void BtEvaluator::update(int frame) {
 	// tick the tree only once a "game second" == 30 ticks
-	if (frame % 30 == 0) {
-		auto t1 = chrono::high_resolution_clock::now();
-		for (auto it(treeMap.begin()); it != treeMap.end(); ++it) {
+	const int updatePeriod = 30;
+
+	//auto t1 = chrono::high_resolution_clock::now();
+	int frameOffset = frame % updatePeriod;
+	
+	int i = 0;
+	for (auto it(treeMap.begin()); it != treeMap.end(); ++it, ++i) {
+		if (i % updatePeriod == frameOffset) {
 			tickTree(it->second);
 		}
-
-		auto t2 = chrono::high_resolution_clock::now();
-		auto duration = chrono::duration_cast<chrono::milliseconds>(t2 - t1).count();
-		lua->CallUI(("BETS LOG Tick duration in ms: " + to_string(duration)).c_str(), -1);
 	}
 }
 
 void BtEvaluator::sendLuaMessage(const std::string& messageType) const {
 	std::string message = "BETS " + messageType;
-	//game->SendTextMessage(message.c_str(), -1);
 	lua->CallUI(message.c_str(), -1);
 }
 void BtEvaluator::sendLuaMessage(const std::string& messageType, const nlohmann::json& data) const {
 	std::string message = "BETS " + messageType + " " + data.dump();
-	//game->SendTextMessage(message.c_str(), -1);
 	lua->CallUI(message.c_str(), -1);
 }
 
@@ -177,7 +178,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 	// messages without data
 	if (messageCode == "REQUEST_NODE_DEFINITIONS") {
 		broadcastNodeDefinitions();
-	} else if(messageCode == "REINITIALIZE") {
+	} else if (messageCode == "REINITIALIZE") {
 		Initialize();
 	} else {
 		try {
@@ -200,7 +201,7 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				}
 				return;
 			} else if (messageCode == "EXECUTE") {
-				system(data.get<string>().c_str());
+				//system(data.get<string>().c_str()); 
 				return;
 			}
 
@@ -212,17 +213,27 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					treeMap.emplace(instanceId, make_pair(BehaviourTree(), BehaviourTree::EvaluationContext(callback, instanceId)));
 				}
 				auto& treeContextPair(treeMap.at(instanceId));
-				treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
-				treeContextPair.second.clear();
+
+				try {
+					treeContextPair.first.setRoot(createTreeFromJSON(data["root"]).release());
+					treeContextPair.second.clear();
+					sendSuccessResponse();
+				} catch (const std::exception& e) {
+					sendFailureResponse("Failed to create tree: " + string(e.what()));
+					return;
+				}
 			} else if (messageCode == "REPORT_TREE") {
 				auto treeIterator = treeMap.find(instanceId);
 				if (treeIterator == treeMap.end()) {
 					reportingContext = nullptr;
-					return; // TODO: return RESPONSE
+					sendFailureResponse("Failed to report tree " + instanceId);
+					return;
 				}
 				reportingContext = &treeIterator->second.second;
+				sendSuccessResponse();
 			} else if (messageCode == "ASSIGN_UNITS") {
 				auto iterator = treeMap.find(instanceId);
+
 				if (iterator != treeMap.end()) {
 					int roleId = data["role"];
 					std::vector<springai::Unit*> units = callback->GetSelectedUnits(); // we unfortunately don't have a way to translate units ids to springai:Unit*, so we cannot take units as a parameter
@@ -233,24 +244,30 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 					}
 					iterator->second.second.reset();
 					iterator->second.second.setUnits(roleId, units);
-				} else
-					return; // TODO: return RESPONSE
-			}	else if (messageCode == "REMOVE_TREE") {
+					sendSuccessResponse();
+				} else {
+					sendFailureResponse("Failed to assign units to tree " + instanceId);
+					return;
+				}
+			} else if (messageCode == "REMOVE_TREE") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					if (reportingContext == &iterator->second.second) {
 						reportingContext = nullptr;
 					}
 					treeMap.erase(iterator);
-				} else
-					return; // TODO: return RESPONSE
-			}	else if (messageCode == "SET_BREAKPOINT") {
+					sendSuccessResponse();
+				} else {
+					sendFailureResponse("Failed to remove tree: " + instanceId);
+					return;
+				}
+			} else if (messageCode == "SET_BREAKPOINT") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					std::string nodeId = data["nodeId"];
 					iterator->second.second.setBreakpoint(nodeId);
 				}
-			}	else if (messageCode == "REMOVE_BREAKPOINT") {
+			} else if (messageCode == "REMOVE_BREAKPOINT") {
 				auto iterator = treeMap.find(instanceId);
 				if (iterator != treeMap.end()) {
 					std::string nodeId = data["nodeId"];
@@ -258,10 +275,17 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				}
 			}
 		} catch (std::logic_error err) {
-			// FIXME: logic_error can be raised by other things than the json library
 			game->SendTextMessage(("JSON error: " + std::string(err.what())).c_str(), 0);
 		}
 	}
+}
+
+void BtEvaluator::sendSuccessResponse() const {
+	sendLuaMessage("RESPONSE", json{ { "result", true } });
+}
+
+void BtEvaluator::sendFailureResponse(const std::string& error) const {
+	sendLuaMessage("RESPONSE", json{ { "result", false }, { "error", error.c_str() } });
 }
 
 void BtEvaluator::broadcastNodeDefinitions() const {
@@ -318,7 +342,7 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 
 	auto factoryIterator = nodeFactories.find(type);
 	if (factoryIterator == nodeFactories.end()) {
-		return nullptr;
+		throw std::invalid_argument("Factory for node type " + type + " doesn't exist");
 	}
 	auto& factory = factoryIterator->second;
 
@@ -336,29 +360,29 @@ std::unique_ptr<BehaviourTree::Node> BtEvaluator::createTreeFromJSON(const nlohm
 			children.push_back(createTreeFromJSON(child));
 		}
 	}
-
 	return factory->createNode(tree.find("id") != tree.end() ? tree["id"].get<std::string>() : std::to_string(++nodeIdCounter), parameters, children);
 }
 
 int BtEvaluator::HandleEvent(int event, const void* data) {
 
 	switch (event) {
-		case EVENT_UPDATE: {
-			// every frame UPDATE_EVENT is called			
-			const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
-			update(updateData->frame);
-		} break;
-		case EVENT_LUA_MESSAGE: {
-			std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
-			//game->SendTextMessage(("AI received message from Lua: " + message).c_str(), 0);
-			receiveLuaMessage(message);
+	case EVENT_UPDATE:
+	{
+		// every frame UPDATE_EVENT is called			
+		const SUpdateEvent* updateData = static_cast<const SUpdateEvent*>(data);
+		update(updateData->frame);
+	} break;
+	case EVENT_LUA_MESSAGE:
+	{
+		std::string message = static_cast<const SLuaMessageEvent*>(data)->inData;
 
-			//auto units = callback->GetSelectedUnits();
-			//context.setUnits(units);
-		} break;
-		default: {
-			//game->SendTextMessage("Default Event ", 0);
-		} break;
+		receiveLuaMessage(message);
+
+	} break;
+	default:
+	{
+		//game->SendTextMessage("Default Event ", 0);
+	} break;
 	}
 
 	// signal: everything went OK

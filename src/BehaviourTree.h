@@ -33,11 +33,17 @@ namespace BT {
 		}
 	}
 
-
+	/**
+	 * Containes a pointer to the root of the tree. Handles the execution of the tree and its nodes.
+	 * Also implements the breakpoint functionality
+	 */
 	class BehaviourTree {
 	public:
 		class Node;
 
+		/**
+		 * Contains data only relevant to the execution of the tree, not to the structure of the tree itself. (units, breakpoints,...)
+		 */
 		class EvaluationContext {
 		public:
 			static const int ALL_ROLES = -1;
@@ -46,11 +52,20 @@ namespace BT {
 			EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId);
 
 			const std::vector<springai::Unit*>& units() const { return *currentUnits_; }
+
+			// Remove units from the tree (from any role)
 			bool removeUnits(const std::vector<springai::Unit*>& units);
+
+			// Assign units to the specified role in the tree
 			void setUnits(int roleId, const std::vector<springai::Unit*>& units);
 
+			// gets the index of the role the nodes will be executed on
 			int activeRole() const { return currentRole_; }
+
+			// sets the index of the role the nodes will be executed on
 			void setActiveRole(int roleId);
+
+			// methods returning vector of nodes in a certain state
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() const { return currentlyFinished; }
 			const std::vector<Node*>& running() const { return currentlyRunning; }
@@ -58,12 +73,16 @@ namespace BT {
 
 			const std::string& treeInstanceId() const { return instanceId_; }
 
+			// removes all breakpoints and units from the tree and resets it
 			void clear();
+
+			// clears the internal state of execution of the tree and its nodes
 			void reset();
 
 			bool setBreakpoint(const std::string& nodeId);
 			bool removeBreakpoint(const std::string& nodeId);
 
+			// prepare the tree to be ticked
 			void initialize();
 			void stoppedInitialize();
 			EvaluationResult tickNode(Node* node);
@@ -82,6 +101,9 @@ namespace BT {
 			std::string instanceId_;
 		};
 
+		/**
+		 * A representation of the node parameter
+		 */
 		struct ParameterDefinition {
 			std::string name;
 			std::string variableType;
@@ -90,22 +112,34 @@ namespace BT {
 		};
 
 		struct ChildDefinition {};
+		
+		/**
+		 * Abstract class representing any node in a tree. Contains pointers to its children. Derived class need to implement their logic in tick() method.
+		 */
 		class Node {
 		public:
 			class Factory;
 
-			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0), canBreak_(true) {}
+			Node(const std::string& id, int children = 0) : id_(id), children_(children), parent_(nullptr), stoppedAt_(0)/*, canBreak_(true)*/ {}
 			virtual ~Node() {}
 
+			// unique id
 			const std::string& id() const { return id_; }
 
 			virtual std::string name() = 0;
+
+			// called during a tree tick. Returns a current state of the node.
 			virtual EvaluationResult tick(EvaluationContext& context) = 0;
+
+			// clears the internal state of the node
 			virtual void reset(const EvaluationContext& context); // base implementation only resets children
 
-			bool canBreak() { return canBreak_; }
-			void enableBreak() { canBreak_ = true; }
-			void disableBreak() { canBreak_ = false; }
+			bool canBreak() { return stoppedAt() == 0; }
+			EvaluationResult stopAtEntry() { return stopAt(-1); }
+			// // the following were available to provide breakpoint functionality, where a breakpoint would stop on a node when first reached and would not fire again until the node got reset or finished running
+			// // if this is ever to be reactivated, the canBreak_ has be to properly resetted during Context:reset
+			// void enableBreak() { canBreak_ = true; }
+			// void disableBreak() { canBreak_ = false; }
 		protected:
 			unsigned int& stoppedAt() { return stoppedAt_; }
 			EvaluationResult stopAt(unsigned int index) { stoppedAt_ = index; return btBreakpoint; }
@@ -118,7 +152,7 @@ namespace BT {
 			std::string id_;
 			Node* parent_; // weak reference
 			unsigned int stoppedAt_;
-			bool canBreak_;
+			// bool canBreak_;
 		};
 
 		class LeafNode : public Node {
@@ -127,6 +161,7 @@ namespace BT {
 
 			class Factory;
 		};
+
 
 		class UnaryNode : public Node {
 		public:
@@ -172,6 +207,9 @@ namespace BT {
 			Node* thirdChild() { return children_[2].get(); }
 		};
 
+		/**
+		 * Base class for nodes with variabl number of children
+		 */
 		class GenericNode : public Node {
 		public:
 			GenericNode(const std::string& id) : Node(id) {}

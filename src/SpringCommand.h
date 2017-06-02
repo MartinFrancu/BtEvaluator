@@ -16,7 +16,7 @@ namespace BT {
 		SpringCommand(const std::string& id, springai::OOAICallback* callback) : LeafNode(id), callback(callback) {}
 
 		EvaluationResult tick(EvaluationContext& context) override { 
-			return execute(context);
+			return notStopped(execute(context));
 		}
 
 		virtual EvaluationResult execute(const EvaluationContext& context) = 0;

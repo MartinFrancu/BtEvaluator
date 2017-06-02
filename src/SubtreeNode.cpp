@@ -17,12 +17,12 @@ EvaluationResult SubtreeNode::tick(EvaluationContext& context)
 	if (subtreeStarted_)
 	{
 		if (lua_->CallUI(("BETS ENTER_SUBTREE " + (json{ { "id", id() },{ "treeId", context.treeInstanceId() },{ "project", projectSwitch_ } }).dump()).c_str(), -1) == "F")
-			return btFailure;
+			return notStopped(btFailure);
 	}
 	else
 	{
 		if (lua_->CallUI(("BETS START_SUBTREE " + (json{ { "id", id() },{ "treeId", context.treeInstanceId() },{ "parameter", parameters_ },{ "project", projectSwitch_ }, { "roleId", context.activeRole() } }).dump()).c_str(), -1) == "F")
-			return btFailure;
+			return notStopped(btFailure);
 		subtreeStarted_ = true;
 	}
 
@@ -31,7 +31,7 @@ EvaluationResult SubtreeNode::tick(EvaluationContext& context)
 		subtreeStarted_ = false;
 
 	if (lua_->CallUI(("BETS EXIT_SUBTREE " + (json{ { "id", id() },{ "treeId", context.treeInstanceId() } }).dump()).c_str(), -1) == "F")
-		return btFailure;
+		return notStopped(btFailure);
 
 	return keep(result);
 }

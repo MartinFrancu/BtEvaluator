@@ -5,6 +5,9 @@
 #include "BehaviourTreeFactory.h"
 
 namespace BT {
+	/**
+	 * Node the executes the first child that doesn't fail.
+	 */
 	class SelectorNode : public BehaviourTree::GenericNode {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
@@ -14,11 +17,15 @@ namespace BT {
 		EvaluationResult tick(EvaluationContext& context) override;
 		void reset(const EvaluationContext& context) override;
 
+
 		class Factory : public GenericNode::Factory {
+			typedef BehaviourTree::ParameterDefinition ParameterDefinition;
 		public:
 			Factory() : GenericNode::Factory() {}
 
 			std::string typeName() const override { return "selector"; }
+
+			std::vector<ParameterDefinition> parameters() const override;
 		protected:
 			std::unique_ptr<GenericNode> createNode(
 				const std::string& id,

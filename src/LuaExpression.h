@@ -4,6 +4,9 @@
 
 namespace BT {
 
+	/**
+	 * Node that runs the Lua expression entered as a parameter value vhen ticked.
+	 */
 	class LuaExpression : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:

@@ -4,16 +4,20 @@
 #include "SpringCommand.h"
 
 namespace BT {
-  class GroupReporter : public SpringCommand {
+	/**
+	 * Debug node
+	 * Print units in the currently active role to the Spring console
+	 */
+	class GroupReporter : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	private:
-    int maxUnitReported_;
-  public:
-    explicit GroupReporter(const std::string& id, springai::OOAICallback* callback, int maxUnitReported = 5) : SpringCommand(id, callback), maxUnitReported_(maxUnitReported) {}
-    ~GroupReporter() {}
+		int maxUnitReported_;
+	public:
+		explicit GroupReporter(const std::string& id, springai::OOAICallback* callback, int maxUnitReported = 5) : SpringCommand(id, callback), maxUnitReported_(maxUnitReported) {}
+		~GroupReporter() {}
 
-    std::string name() override { return "GroupReporter"; }
-    EvaluationResult execute(const EvaluationContext& context) override;
+		std::string name() override { return "GroupReporter"; }
+		EvaluationResult execute(const EvaluationContext& context) override;
 
 		class Factory : public SpringCommand::Factory {
 		public:
@@ -24,7 +28,7 @@ namespace BT {
 			std::unique_ptr<LeafNode> createNode(
 				const std::string& id,
 				const std::map<std::string, ParameterValuePlaceholder>& parameters
-				) const override;
+			) const override;
 			std::string tooltip() const override;
 		};
 	};

@@ -30,12 +30,12 @@ local infos = {
 	},
 	{
 		key    = 'description',
-		value  = 'This is part of BETS project, behaviour trees editing and debugging toolkit. ',
+		value  = 'This is part of BETS project, behaviour trees editing and debugging toolkit.',
 		desc   = 'tooltip.',
 	},
 	{
 		key    = 'url',
-		value  = 'https://springrts.com/wiki/AI:CppTestAI',
+		value  = 'http://notalab.com/projects/bets/',
 		desc   = 'URL with more detailed info about the AI',
 	},
 	{

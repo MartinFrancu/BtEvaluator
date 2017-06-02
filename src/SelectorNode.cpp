@@ -1,4 +1,5 @@
 #include "SelectorNode.h"
+#include "ActiveSelectorNode.h"
 
 using namespace BT;
 
@@ -25,16 +26,37 @@ void BT::SelectorNode::reset(const EvaluationContext& context) {
 	Node::reset(context);
 }
 
+std::vector<SelectorNode::Factory::ParameterDefinition> SelectorNode::Factory::parameters() const {
+	return{
+		ParameterDefinition{
+			"active",
+			"expression",
+			"checkBox",
+			"true"
+		}
+	};
+}
+
 std::unique_ptr<BehaviourTree::GenericNode> SelectorNode::Factory::createNode(
 	const std::string& id,
 	const std::map<std::string, ParameterValuePlaceholder>& parameters
 ) const {
-	return std::unique_ptr<SelectorNode>(new SelectorNode(id));
+	bool active = false;
+	auto activeIt = parameters.find("active");
+	if (activeIt != parameters.end())
+		active = activeIt->second.asBoolean();
+	if (active) {
+		return std::unique_ptr<ActiveSelectorNode>(new ActiveSelectorNode(id));
+	} else {
+		return std::unique_ptr<SelectorNode>(new SelectorNode(id));
+	}
 }
 
 std::string SelectorNode::Factory::tooltip() const {
 	return
 		"Selector node executes all the children sequentially from top to bottom. "
 		"It will stop executing its children when one of the children succeeds. In that case, the Selector succeeds. "
-		"If all the Selector's children fail, then the Selector fails.";
+		"If all the Selector's children fail, then the Selector fails. "
+		"If active is selected, it switches to the higher priority children whenever possible. " 
+		"Otherwise the selector keeps running the selected child until it finishes execution.";
 }

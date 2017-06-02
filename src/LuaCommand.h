@@ -4,6 +4,10 @@
 
 namespace BT {
 
+	/**
+	 * Command node representing any lua based command.
+	 * When ticked, sends the name of the the script, along with node parameters, to the Lua side, where the script itself is run.
+	 */
 	class LuaCommand : public SpringCommand {
 		typedef BehaviourTree::EvaluationContext EvaluationContext;
 	public:
@@ -25,7 +29,7 @@ namespace BT {
 			}
 
 			std::vector<BehaviourTree::ParameterDefinition> parameters() const override;
-			
+
 			// Command nodes are created separately in BtCreator
 			bool isAvailableInNodepool() const override { return false; }
 		protected:

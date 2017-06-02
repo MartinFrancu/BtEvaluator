@@ -12,9 +12,9 @@ EvaluationResult RoleSplitNode::tick(EvaluationContext& context)
 		if(childFinished_.size() < count())
 			childFinished_.resize(count());
 
-		if(stoppedAt() == 0)
+		if(stoppedAt() <= 0)
 			runningCount_ = 0;
-		for (int childIndex = stoppedAt(); childIndex < count(); ++childIndex)
+		for (int childIndex = std::max(0u, stoppedAt()); childIndex < count(); ++childIndex)
 		{
 			if (!childFinished_[childIndex])
 			{
