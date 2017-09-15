@@ -149,7 +149,7 @@ void BtEvaluator::update(int frame) {
 	
 	int i = 0;
 	for (auto it(treeMap.begin()); it != treeMap.end(); ++it, ++i) {
-		if (i % updatePeriod == frameOffset) {
+		if (it->second.second.nextEvaluationFrame() <= frame) {
 			tickTree(it->second);
 		}
 	}
@@ -266,6 +266,12 @@ void BtEvaluator::receiveLuaMessage(const std::string& message) {
 				if (iterator != treeMap.end()) {
 					std::string nodeId = data["nodeId"];
 					iterator->second.second.setBreakpoint(nodeId);
+				}
+			} else if (messageCode == "SET_EVALUATION_PERIOD") {
+				auto iterator = treeMap.find(instanceId);
+				if (iterator != treeMap.end()) {
+					int period = data["period"];
+					iterator->second.second.setEvaluationPeriod(std::max(period, 1));
 				}
 			} else if (messageCode == "REMOVE_BREAKPOINT") {
 				auto iterator = treeMap.find(instanceId);

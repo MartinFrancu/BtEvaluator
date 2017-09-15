@@ -65,6 +65,10 @@ namespace BT {
 			// sets the index of the role the nodes will be executed on
 			void setActiveRole(int roleId);
 
+			void setEvaluationPeriod(int period);
+			int evaluationPeriod() const { return evaluationPeriod_; }
+			int nextEvaluationFrame() const { return nextEvaluationFrame_; }
+
 			// methods returning vector of nodes in a certain state
 
 			const std::vector<std::pair<Node*, EvaluationResult>>& finished() const { return currentlyFinished; }
@@ -97,6 +101,9 @@ namespace BT {
 			std::vector<Node*> currentlyStopped;
 			std::vector<Node*> currentlyRunning;
 			std::vector<Node*> previouslyRunning;
+
+			int evaluationPeriod_;
+			int nextEvaluationFrame_;
 
 			std::string instanceId_;
 		};

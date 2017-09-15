@@ -13,7 +13,7 @@ using namespace std;
 
 
 BehaviourTree::EvaluationContext::EvaluationContext(springai::OOAICallback* callback, const std::string& instanceId)
-	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(&allUnits_), currentRole_(ALL_ROLES), breakpoints_() {
+	: callback_(callback), roleUnits_(), allUnits_(), instanceId_(instanceId), currentUnits_(&allUnits_), currentRole_(ALL_ROLES), breakpoints_(), evaluationPeriod_(30), nextEvaluationFrame_(0) {
 }
 
 bool BehaviourTree::EvaluationContext::removeUnits(const std::vector<springai::Unit*>& units) {
@@ -125,6 +125,16 @@ EvaluationResult BehaviourTree::EvaluationContext::tickNode(Node* node) {
 	return result;
 }
 
+void BehaviourTree::EvaluationContext::setEvaluationPeriod(int period)
+{
+	evaluationPeriod_ = period;
+
+	int currentFrame = callback_->GetGame()->GetCurrentFrame();
+	int newNextEval = currentFrame + period;
+	if(nextEvaluationFrame_ > newNextEval)
+		nextEvaluationFrame_ = newNextEval;
+}
+
 void BehaviourTree::EvaluationContext::finalize() {
 	/*
 	for (auto finished : currentlyFinished) {
@@ -145,6 +155,9 @@ void BehaviourTree::EvaluationContext::finalize() {
 	}
 
 	setActiveRole(ALL_ROLES);
+
+	int currentFrame = callback_->GetGame()->GetCurrentFrame();
+	nextEvaluationFrame_ = currentFrame + evaluationPeriod_;
 }
 
 
