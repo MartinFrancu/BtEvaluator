@@ -19,6 +19,7 @@
 #include "ConditionNode.h"
 #include "ConstantNode.h"
 #include "RepeatNode.h"
+#include "ParallelNode.h"
 #include "RoleSplitNode.h"
 #include "SubtreeNode.h"
 #include "SpringCommand.h"
@@ -95,6 +96,7 @@ BtEvaluator::BtEvaluator(springai::OOAICallback* callback) :
 		new ConstantNode::Factory(btSuccess, "Immediately returns 'Success'. "),
 		new ConstantNode::Factory(btFailure, "Immediately returns 'Failure'. "),
 		new RepeatNode::Factory(),
+		new ParallelNode::Factory(),
 		new RoleSplitNode::Factory(),
 		//new SubtreeNode::Factory(callback),
 		new SubtreeNode::ReferenceFactory(callback),
